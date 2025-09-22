@@ -92,7 +92,7 @@ class ScreenshotAccessibilityService : AccessibilityService() {
                 
                 // Add capabilities
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    this.capabilities = this.capabilities or AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
+                    capabilities = capabilities or AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
                 }
                 
                 // Enable screenshot capability if supported
@@ -224,7 +224,12 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         // Clean up expired requests
         cleanupExpiredRequests()
         
-        processNextScreenshotRequest()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            processNextScreenshotRequest()
+        } else {
+            Log.w(TAG, "Screenshot API not supported on this API level.")
+            callback.onScreenshotError("Screenshot API requires Android 11 (API 30) or higher")
+        }
     }
 
     /**
