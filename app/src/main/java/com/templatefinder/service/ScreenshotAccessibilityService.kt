@@ -391,7 +391,7 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         }
 
         val gestureBuilder = GestureDescription.Builder()
-        gestureBuilder.addStroke(GestureDescription.StrokeDescription(path, 0, 1))
+        gestureBuilder.addStroke(GestureDescription.StrokeDescription(path, 0, 50L))
         
         dispatchGesture(gestureBuilder.build(), object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription?) {
