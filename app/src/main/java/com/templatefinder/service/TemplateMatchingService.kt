@@ -6,6 +6,7 @@ import android.util.Log
 import com.templatefinder.model.SearchResult
 import com.templatefinder.model.Template
 import com.templatefinder.util.ErrorHandler
+import android.os.Build
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.Core
@@ -97,10 +98,22 @@ class TemplateMatchingService(private val context: Context) {
             return emptyList()
         }
 
+        val softwareScreenshot = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && screenshot.config == Bitmap.Config.HARDWARE) {
+            screenshot.copy(Bitmap.Config.ARGB_8888, false)
+        } else {
+            screenshot
+        }
+
+        val softwareTemplate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && template.templateBitmap.config == Bitmap.Config.HARDWARE) {
+            template.templateBitmap.copy(Bitmap.Config.ARGB_8888, false)
+        } else {
+            template.templateBitmap
+        }
+
         val screenshotMat = Mat()
-        Utils.bitmapToMat(screenshot, screenshotMat)
+        Utils.bitmapToMat(softwareScreenshot, screenshotMat)
         val templateMat = Mat()
-        Utils.bitmapToMat(template.templateBitmap, templateMat)
+        Utils.bitmapToMat(softwareTemplate, templateMat)
 
         if (screenshotMat.empty() || templateMat.empty()) {
             Log.e(TAG, "Screenshot or template Mat is empty")
@@ -180,10 +193,22 @@ class TemplateMatchingService(private val context: Context) {
     }
 
     private fun performOpenCVTemplateMatching(screenshot: Bitmap, template: Template): SearchResult {
+        val softwareScreenshot = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && screenshot.config == Bitmap.Config.HARDWARE) {
+            screenshot.copy(Bitmap.Config.ARGB_8888, false)
+        } else {
+            screenshot
+        }
+
+        val softwareTemplate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && template.templateBitmap.config == Bitmap.Config.HARDWARE) {
+            template.templateBitmap.copy(Bitmap.Config.ARGB_8888, false)
+        } else {
+            template.templateBitmap
+        }
+
         val screenshotMat = Mat()
-        Utils.bitmapToMat(screenshot, screenshotMat)
+        Utils.bitmapToMat(softwareScreenshot, screenshotMat)
         val templateMat = Mat()
-        Utils.bitmapToMat(template.templateBitmap, templateMat)
+        Utils.bitmapToMat(softwareTemplate, templateMat)
 
         Imgproc.cvtColor(screenshotMat, screenshotMat, Imgproc.COLOR_BGRA2GRAY)
         Imgproc.cvtColor(templateMat, templateMat, Imgproc.COLOR_BGRA2GRAY)
