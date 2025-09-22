@@ -92,7 +92,7 @@ class ScreenshotAccessibilityService : AccessibilityService() {
                 
                 // Add capabilities
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    capabilities = capabilities or 0x00000020
+                    capabilities = capabilities or AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
                 }
                 
                 // Enable screenshot capability if supported
