@@ -527,8 +527,8 @@ class CoordinateFinderService : Service() {
                 notificationManager.showResultNotification(result)
                 
                 // Show overlay and auto-open app if configured
-                autoOpenManager.showResultOverlay(result)
-                autoOpenManager.bringAppToForeground(result)
+                // autoOpenManager.showResultOverlay(result)
+                // autoOpenManager.bringAppToForeground(result)
                 
                 // For now, continue searching after finding result
                 // This can be made configurable in future versions
