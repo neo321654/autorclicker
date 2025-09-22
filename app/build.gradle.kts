@@ -62,6 +62,9 @@ dependencies {
     // User onboarding
     implementation("androidx.viewpager2:viewpager2:1.0.0")
     
+    // Image loading and processing
+    implementation("androidx.exifinterface:exifinterface:1.3.6")
+    
     // Analytics and crash reporting (temporarily disabled)
     // implementation("ch.acra:acra-core:5.11.3")
     // implementation("ch.acra:acra-dialog:5.11.3")

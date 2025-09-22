@@ -110,27 +110,46 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_marginTop="16dp">
 
-        <Button
-            android:id="@+id/captureScreenshotButton"
-            android:layout_width="0dp"
+        <!-- Primary Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Capture Screenshot"
-            android:layout_marginEnd="8dp"
-            style="@style/Widget.Material3.Button" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
 
-        <Button
-            android:id="@+id/saveTemplateButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Save Template"
-            android:layout_marginStart="8dp"
-            android:enabled="false"
-            style="@style/Widget.Material3.Button" />
+            <Button
+                android:id="@+id/captureScreenshotButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Capture Screenshot"
+                android:layout_marginEnd="4dp"
+                style="@style/Widget.Material3.Button" />
+
+            <Button
+                android:id="@+id/selectFromGalleryButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="From Gallery"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+
+            <Button
+                android:id="@+id/saveTemplateButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Save Template"
+                android:layout_marginStart="4dp"
+                android:enabled="false"
+                style="@style/Widget.Material3.Button" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
