@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
@@ -34,6 +36,7 @@ class AutoOpenManager(private val context: Context) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var overlayView: View? = null
     private var isOverlayShowing = false
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     /**
      * Bring application to foreground when result is found
@@ -86,27 +89,29 @@ class AutoOpenManager(private val context: Context) {
             return
         }
 
-        try {
-            // Remove existing overlay if present
-            hideResultOverlay()
-            
-            // Create overlay view
-            overlayView = createOverlayView(result)
-            
-            // Add overlay to window manager
-            val params = createOverlayLayoutParams()
-            windowManager.addView(overlayView, params)
-            isOverlayShowing = true
-            
-            Log.d(TAG, "Result overlay shown: ${result.getFormattedCoordinates()}")
-            
-            // Auto-hide overlay after duration
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+        mainHandler.post {
+            try {
+                // Remove existing overlay if present
                 hideResultOverlay()
-            }, OVERLAY_DISPLAY_DURATION)
-            
-        } catch (e: Exception) {
-            Log.e(TAG, "Error showing result overlay", e)
+                
+                // Create overlay view
+                overlayView = createOverlayView(result)
+                
+                // Add overlay to window manager
+                val params = createOverlayLayoutParams()
+                windowManager.addView(overlayView, params)
+                isOverlayShowing = true
+                
+                Log.d(TAG, "Result overlay shown: ${result.getFormattedCoordinates()}")
+                
+                // Auto-hide overlay after duration
+                mainHandler.postDelayed({
+                    hideResultOverlay()
+                }, OVERLAY_DISPLAY_DURATION)
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Error showing result overlay", e)
+            }
         }
     }
 
@@ -114,15 +119,19 @@ class AutoOpenManager(private val context: Context) {
      * Hide result overlay window
      */
     fun hideResultOverlay() {
-        try {
-            overlayView?.let { view ->
-                windowManager.removeView(view)
-                overlayView = null
-                isOverlayShowing = false
-                Log.d(TAG, "Result overlay hidden")
+        mainHandler.post {
+            try {
+                overlayView?.let { view ->
+                    if (view.isAttachedToWindow) {
+                        windowManager.removeView(view)
+                    }
+                    overlayView = null
+                    isOverlayShowing = false
+                    Log.d(TAG, "Result overlay hidden")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error hiding result overlay", e)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error hiding result overlay", e)
         }
     }
 
