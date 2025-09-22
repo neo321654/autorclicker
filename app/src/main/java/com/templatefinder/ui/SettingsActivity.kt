@@ -48,6 +48,7 @@ class SettingsActivity : AppCompatActivity() {
     private var enableVibration: Boolean = true
     private var enableAutoOpen: Boolean = false
     private var enableLogging: Boolean = false
+    private var enableAutoClick: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -155,6 +156,10 @@ class SettingsActivity : AppCompatActivity() {
             enableLogging = isChecked
         }
 
+        binding.enableAutoClickSwitch.setOnCheckedChangeListener { _, isChecked ->
+            enableAutoClick = isChecked
+        }
+
         // Action Buttons
         binding.saveButton.setOnClickListener {
             saveSettings()
@@ -181,6 +186,7 @@ class SettingsActivity : AppCompatActivity() {
                 enableVibration = appSettings.vibrationEnabled
                 enableAutoOpen = appSettings.autoOpenEnabled
                 enableLogging = appSettings.loggingEnabled
+                enableAutoClick = appSettings.autoClickEnabled
 
                 // Update UI
                 updateUI()
@@ -205,6 +211,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.enableVibrationSwitch.isChecked = enableVibration
         binding.enableAutoOpenSwitch.isChecked = enableAutoOpen
         binding.enableLoggingSwitch.isChecked = enableLogging
+        binding.enableAutoClickSwitch.isChecked = enableAutoClick
 
         // Update text displays
         updateSearchIntervalText()
@@ -249,7 +256,8 @@ class SettingsActivity : AppCompatActivity() {
                     notificationsEnabled = enableNotifications,
                     vibrationEnabled = enableVibration,
                     autoOpenEnabled = enableAutoOpen,
-                    loggingEnabled = enableLogging
+                    loggingEnabled = enableLogging,
+                    autoClickEnabled = enableAutoClick
                 )
                 newSettings.save(this@SettingsActivity)
 
@@ -304,6 +312,7 @@ class SettingsActivity : AppCompatActivity() {
         enableVibration = true
         enableAutoOpen = false
         enableLogging = false
+        enableAutoClick = false
 
         updateUI()
 

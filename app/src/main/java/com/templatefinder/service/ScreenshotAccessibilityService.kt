@@ -4,6 +4,9 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 // FLAG_TAKE_SCREENSHOT is available from API 30+
 import android.graphics.Bitmap
+import android.graphics.Path
+import android.graphics.Point
+import android.accessibilityservice.GestureDescription
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -371,6 +374,36 @@ class ScreenshotAccessibilityService : AccessibilityService() {
      */
     fun isScreenshotSupported(): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    }
+
+    /**
+     * Performs a click at the specified coordinates.
+     */
+    fun performClick(x: Int, y: Int) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            Log.w(TAG, "Gesture dispatch is not supported on this API level.")
+            return
+        }
+
+        Log.d(TAG, "Performing click at ($x, $y)")
+        val path = Path().apply {
+            moveTo(x.toFloat(), y.toFloat())
+        }
+
+        val gestureBuilder = GestureDescription.Builder()
+        gestureBuilder.addStroke(GestureDescription.StrokeDescription(path, 0, 1))
+        
+        dispatchGesture(gestureBuilder.build(), object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription?) {
+                super.onCompleted(gestureDescription)
+                Log.d(TAG, "Click gesture completed.")
+            }
+
+            override fun onCancelled(gestureDescription: GestureDescription?) {
+                super.onCancelled(gestureDescription)
+                Log.w(TAG, "Click gesture cancelled.")
+            }
+        }, null)
     }
 
     /**

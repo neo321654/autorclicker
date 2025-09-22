@@ -537,6 +537,12 @@ class CoordinateFinderService : Service() {
                 
                 // Show result notification
                 notificationManager.showResultNotification(result)
+
+                if (appSettings?.autoClickEnabled == true) {
+                    result.coordinates?.let {
+                        ScreenshotAccessibilityService.getInstance()?.performClick(it.x, it.y)
+                    }
+                }
                 
                 // Show overlay and auto-open app if configured
                 // autoOpenManager.showResultOverlay(result)

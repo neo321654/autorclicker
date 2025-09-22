@@ -12,7 +12,8 @@ data class AppSettings(
     val notificationsEnabled: Boolean = true,
     val vibrationEnabled: Boolean = true,
     val autoOpenEnabled: Boolean = false,
-    val loggingEnabled: Boolean = true
+    val loggingEnabled: Boolean = true,
+    val autoClickEnabled: Boolean = false
 ) {
     
     companion object {
@@ -26,6 +27,7 @@ data class AppSettings(
         private const val KEY_VIBRATION_ENABLED = "vibration_enabled"
         private const val KEY_AUTO_OPEN_ENABLED = "auto_open_enabled"
         private const val KEY_LOGGING_ENABLED = "logging_enabled"
+        private const val KEY_AUTO_CLICK_ENABLED = "auto_click_enabled"
         
         /**
          * Loads settings from SharedPreferences
@@ -41,7 +43,8 @@ data class AppSettings(
                 notificationsEnabled = prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true),
                 vibrationEnabled = prefs.getBoolean(KEY_VIBRATION_ENABLED, true),
                 autoOpenEnabled = prefs.getBoolean(KEY_AUTO_OPEN_ENABLED, false),
-                loggingEnabled = prefs.getBoolean(KEY_LOGGING_ENABLED, true)
+                loggingEnabled = prefs.getBoolean(KEY_LOGGING_ENABLED, true),
+                autoClickEnabled = prefs.getBoolean(KEY_AUTO_CLICK_ENABLED, false)
             )
         }
     }
@@ -62,6 +65,7 @@ data class AppSettings(
                 putBoolean(KEY_VIBRATION_ENABLED, vibrationEnabled)
                 putBoolean(KEY_AUTO_OPEN_ENABLED, autoOpenEnabled)
                 putBoolean(KEY_LOGGING_ENABLED, loggingEnabled)
+                putBoolean(KEY_AUTO_CLICK_ENABLED, autoClickEnabled)
                 apply()
             }
             true
@@ -126,4 +130,5 @@ data class AppSettings(
     fun isVibrationEnabled(): Boolean = vibrationEnabled
     fun isAutoOpenEnabled(): Boolean = autoOpenEnabled
     fun isLoggingEnabled(): Boolean = loggingEnabled
+    fun isAutoClickEnabled(): Boolean = autoClickEnabled
 }
