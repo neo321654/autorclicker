@@ -51,7 +51,7 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.8.2")
     
     // Image processing
-    implementation("org.opencv:opencv-android:4.9.0")
+    implementation("org.opencv:opencv:4.12.0")
     
     // For foreground service
     implementation("androidx.work:work-runtime-ktx:2.9.0")

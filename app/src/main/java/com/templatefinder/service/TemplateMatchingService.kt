@@ -246,6 +246,14 @@ class TemplateMatchingService(private val context: Context) {
         return MatchingStats(isInitialized(), if(isInitialized()) OpenCVLoader.OPENCV_VERSION else "Not Initialized")
     }
 
+    fun validateTemplate(template: Template): Boolean {
+        return !template.templateBitmap.isRecycled && template.templateBitmap.width > 0 && template.templateBitmap.height > 0
+    }
+
+    fun optimizeMatchingParameters(template: Template): OptimizedParameters {
+        return OptimizedParameters(template.matchThreshold, floatArrayOf(1.0f), Imgproc.TM_CCOEFF_NORMED, true)
+    }
+
     data class MatchingStats(
         val isOpenCVInitialized: Boolean,
         val openCVVersion: String
