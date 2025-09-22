@@ -116,18 +116,20 @@ class TemplateTestActivity : AppCompatActivity() {
     }
 
     private fun showTemplateSelectionDialog() {
-        val templateNames = templateManager.getTemplateNames().toTypedArray()
-        if (templateNames.isEmpty()) {
+        val templates = templateManager.loadAllNamedTemplates().toList()
+        if (templates.isEmpty()) {
             Toast.makeText(this, "No saved templates found.", Toast.LENGTH_SHORT).show()
             return
         }
 
+        val adapter = TemplateListAdapter(this, templates)
+
         AlertDialog.Builder(this)
             .setTitle("Select a Template")
-            .setItems(templateNames) { _, which ->
-                val name = templateNames[which]
+            .setAdapter(adapter) { _, which ->
+                val (name, template) = templates[which]
                 selectedTemplateName = name
-                selectedTemplate = templateManager.loadNamedTemplate(name)
+                selectedTemplate = template
                 binding.templateInfoText.text = "Template: $name"
                 updateTestButtonState()
             }
@@ -152,7 +154,7 @@ class TemplateTestActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
                 binding.startTestButton.isEnabled = true
                 if (results.isNotEmpty()) {
-                    val resultBitmap = drawResultsOnBitmap(image, results)
+                    val resultBitmap = drawResultsOnBitmap(selectedImageBitmap!!, results)
                     binding.imageView.setImageBitmap(resultBitmap)
                     Toast.makeText(this@TemplateTestActivity, "Found ${results.size} matches.", Toast.LENGTH_LONG).show()
                 } else {
