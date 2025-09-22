@@ -567,6 +567,14 @@ class CoordinateFinderService : Service() {
             this, 0, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+        val stopIntent = Intent(this, CoordinateFinderService::class.java).apply {
+            action = ACTION_STOP_SEARCH
+        }
+        val stopPendingIntent = PendingIntent.getService(
+            this, 1, stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Coordinate Finder")
@@ -575,6 +583,7 @@ class CoordinateFinderService : Service() {
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .addAction(R.drawable.ic_menu_close_clear_cancel, "Stop", stopPendingIntent)
             .build()
     }
 
