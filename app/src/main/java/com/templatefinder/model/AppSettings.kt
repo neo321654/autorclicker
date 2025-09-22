@@ -13,7 +13,9 @@ data class AppSettings(
     val vibrationEnabled: Boolean = true,
     val autoOpenEnabled: Boolean = false,
     val loggingEnabled: Boolean = true,
-    val autoClickEnabled: Boolean = false
+    val autoClickEnabled: Boolean = false,
+    val clickOffsetX: Int = 0,
+    val clickOffsetY: Int = 0
 ) {
     
     companion object {
@@ -28,6 +30,8 @@ data class AppSettings(
         private const val KEY_AUTO_OPEN_ENABLED = "auto_open_enabled"
         private const val KEY_LOGGING_ENABLED = "logging_enabled"
         private const val KEY_AUTO_CLICK_ENABLED = "auto_click_enabled"
+        private const val KEY_CLICK_OFFSET_X = "click_offset_x"
+        private const val KEY_CLICK_OFFSET_Y = "click_offset_y"
         
         /**
          * Loads settings from SharedPreferences
@@ -44,7 +48,9 @@ data class AppSettings(
                 vibrationEnabled = prefs.getBoolean(KEY_VIBRATION_ENABLED, true),
                 autoOpenEnabled = prefs.getBoolean(KEY_AUTO_OPEN_ENABLED, false),
                 loggingEnabled = prefs.getBoolean(KEY_LOGGING_ENABLED, true),
-                autoClickEnabled = prefs.getBoolean(KEY_AUTO_CLICK_ENABLED, false)
+                autoClickEnabled = prefs.getBoolean(KEY_AUTO_CLICK_ENABLED, false),
+                clickOffsetX = prefs.getInt(KEY_CLICK_OFFSET_X, 0),
+                clickOffsetY = prefs.getInt(KEY_CLICK_OFFSET_Y, 0)
             )
         }
     }
@@ -66,6 +72,8 @@ data class AppSettings(
                 putBoolean(KEY_AUTO_OPEN_ENABLED, autoOpenEnabled)
                 putBoolean(KEY_LOGGING_ENABLED, loggingEnabled)
                 putBoolean(KEY_AUTO_CLICK_ENABLED, autoClickEnabled)
+                putInt(KEY_CLICK_OFFSET_X, clickOffsetX)
+                putInt(KEY_CLICK_OFFSET_Y, clickOffsetY)
                 apply()
             }
             true

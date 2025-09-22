@@ -114,6 +114,7 @@ class NotificationManager(private val context: Context) {
             
             // Create and show notification on the correct channel
             val notification = createResultNotification(result)
+            // Create and show notification on the correct channel
             notificationManager.notify(NOTIFICATION_ID_RESULT, notification)
             
             Log.d(TAG, "Result notification shown: ${result.getFormattedCoordinates()}")

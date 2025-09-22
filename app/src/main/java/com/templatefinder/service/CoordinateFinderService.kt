@@ -539,12 +539,20 @@ class CoordinateFinderService : Service() {
                 notificationManager.showResultNotification(result)
 
                 serviceScope.launch {
-                    delay(2000)
+                    // delay(2000) // Temporarily removed delay to make click immediate
                     result.coordinates?.let {
                         val accessibilityService = ScreenshotAccessibilityService.getInstance()
                         if (accessibilityService != null) {
-                            Log.d(TAG, "Auto-clicking at (${it.x}, ${it.y})")
-                            accessibilityService.performMultiClick(it.x, it.y, 5, 5, 100)
+                            // Apply offsets from settings
+                            val offsetX = appSettings?.clickOffsetX ?: 0
+                            val offsetY = appSettings?.clickOffsetY ?: 0
+                            val clickX = it.x + offsetX
+                            val clickY = it.y + offsetY
+
+                            Log.d(TAG, "Auto-clicking at (${it.x}, ${it.y}) with offset ($offsetX, $offsetY) -> ($clickX, $clickY)")
+                            // Show a visual marker for debugging (uncomment to use)
+                            // autoOpenManager.showClickMarker(clickX, clickY)
+                            accessibilityService.performClick(clickX, clickY)
                         } else {
                             Log.w(TAG, "Accessibility service not available for auto-click.")
                         }
