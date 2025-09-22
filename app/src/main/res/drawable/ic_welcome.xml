@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    
+    <!-- Welcome icon with app logo concept -->
+    <path
+        android:fillColor="@color/onboarding_primary"
+        android:pathData="M100,20 C140,20 180,60 180,100 C180,140 140,180 100,180 C60,180 20,140 20,100 C20,60 60,20 100,20 Z" />
+    
+    <!-- Inner circle -->
+    <path
+        android:fillColor="@color/background_primary"
+        android:pathData="M100,40 C130,40 160,70 160,100 C160,130 130,160 100,160 C70,160 40,130 40,100 C40,70 70,40 100,40 Z" />
+    
+    <!-- Target/crosshair symbol -->
+    <path
+        android:fillColor="@color/onboarding_primary"
+        android:pathData="M95,60 L105,60 L105,140 L95,140 Z" />
+    <path
+        android:fillColor="@color/onboarding_primary"
+        android:pathData="M60,95 L140,95 L140,105 L60,105 Z" />
+    
+    <!-- Center dot as path -->
+    <path
+        android:fillColor="@color/onboarding_primary"
+        android:pathData="M100,92 C104.4,92 108,95.6 108,100 C108,104.4 104.4,108 100,108 C95.6,108 92,104.4 92,100 C92,95.6 95.6,92 100,92 Z" />
+</vector>

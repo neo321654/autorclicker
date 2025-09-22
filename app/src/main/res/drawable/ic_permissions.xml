@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    
+    <!-- Shield outline -->
+    <path
+        android:fillColor="@color/onboarding_primary"
+        android:pathData="M100,20 L100,20 C120,25 140,35 140,35 L140,100 C140,130 120,160 100,180 C80,160 60,130 60,100 L60,35 C60,35 80,25 100,20 Z" />
+    
+    <!-- Shield inner -->
+    <path
+        android:fillColor="@color/background_primary"
+        android:pathData="M100,30 C115,34 130,42 130,42 L130,100 C130,125 115,150 100,165 C85,150 70,125 70,100 L70,42 C70,42 85,34 100,30 Z" />
+    
+    <!-- Checkmark -->
+    <path
+        android:strokeColor="@color/success"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M80,100 L95,115 L120,85" />
+    
+    <!-- Lock icon (small) -->
+    <path
+        android:fillColor="@color/onboarding_primary"
+        android:pathData="M90,70 C90,65 95,60 100,60 C105,60 110,65 110,70 L110,75 L115,75 L115,90 L85,90 L85,75 L90,75 Z" />
+</vector>

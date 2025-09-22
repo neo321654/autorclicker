@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary colors -->
+    <color name="primary">#2196F3</color>
+    <color name="primary_dark">#1976D2</color>
+    <color name="primary_light">#BBDEFB</color>
+    <color name="accent">#FF4081</color>
+    
+    <!-- Background colors -->
+    <color name="background_primary">#FFFFFF</color>
+    <color name="background_secondary">#F5F5F5</color>
+    <color name="surface">#FFFFFF</color>
+    
+    <!-- Text colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    
+    <!-- Status colors -->
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FF9800</color>
+    <color name="error">#F44336</color>
+    
+    <!-- Onboarding colors -->
+    <color name="onboarding_background">#FAFAFA</color>
+    <color name="onboarding_primary">#2196F3</color>
+    <color name="onboarding_text_primary">#212121</color>
+    <color name="onboarding_text_secondary">#757575</color>
+    <color name="onboarding_card_background">#FFFFFF</color>
+    
+    <!-- Battery optimization colors -->
+    <color name="battery_normal">#4CAF50</color>
+    <color name="battery_low">#FF9800</color>
+    <color name="battery_critical">#F44336</color>
+    
+    <!-- Accessibility colors -->
+    <color name="accessibility_focus">#2196F3</color>
+    <color name="accessibility_selected">#E3F2FD</color>
+</resources>

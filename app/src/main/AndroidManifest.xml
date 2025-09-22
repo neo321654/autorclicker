@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permissions for accessibility service and screenshots -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Required for accessibility service -->
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"
+        tools:ignore="ProtectedPermissions" />
+
+    <application
+        android:name=".TemplateFinderApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/ic_launcher_legacy"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_launcher_legacy"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.TemplateCoordinateFinder"
+        tools:targetApi="31">
+        
+        <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.TemplateCoordinateFinder">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Template Creation Activity -->
+        <activity
+            android:name=".ui.TemplateCreationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TemplateCoordinateFinder" />
+
+        <!-- Settings Activity -->
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TemplateCoordinateFinder"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Permission Guide Activity -->
+        <activity
+            android:name=".ui.PermissionGuideActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TemplateCoordinateFinder"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Onboarding Activity -->
+        <activity
+            android:name=".ui.OnboardingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TemplateCoordinateFinder" />
+
+        <!-- Help Activity -->
+        <activity
+            android:name=".ui.HelpActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TemplateCoordinateFinder"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Accessibility Service for Screenshots -->
+        <service
+            android:name=".service.ScreenshotAccessibilityService"
+            android:exported="false"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- Foreground Service for Coordinate Finding -->
+        <service
+            android:name=".service.CoordinateFinderService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+    </application>
+
+</manifest>

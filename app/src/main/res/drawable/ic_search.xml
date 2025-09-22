@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    
+    <!-- Magnifying glass -->
+    <path
+        android:strokeColor="@color/onboarding_primary"
+        android:strokeWidth="8"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M85,55 C96.05,55 105,63.95 105,75 C105,86.05 96.05,95 85,95 C73.95,95 65,86.05 65,75 C65,63.95 73.95,55 85,55 Z" />
+    
+    <!-- Magnifying glass handle -->
+    <path
+        android:strokeColor="@color/onboarding_primary"
+        android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:pathData="M110,110 L130,130" />
+    
+    <!-- Target symbol -->
+    <path
+        android:fillColor="@color/onboarding_primary"
+        android:pathData="M98,70 L102,70 L102,130 L98,130 Z" />
+    <path
+        android:fillColor="@color/onboarding_primary"
+        android:pathData="M70,98 L130,98 L130,102 L70,102 Z" />
+</vector>
