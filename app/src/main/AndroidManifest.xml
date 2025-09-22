@@ -11,6 +11,11 @@
     <!-- Required for accessibility service -->
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"
         tools:ignore="ProtectedPermissions" />
+    
+    <!-- Permissions for gallery access -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".TemplateFinderApplication"
@@ -67,6 +72,21 @@
             android:exported="false"
             android:theme="@style/Theme.TemplateCoordinateFinder"
             android:parentActivityName=".MainActivity" />
+
+        <!-- Gallery Template Activity -->
+        <activity
+            android:name=".ui.GalleryTemplateActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TemplateCoordinateFinder.NoActionBar"
+            android:parentActivityName=".ui.TemplateCreationActivity" />
+
+        <!-- Template Test Activity -->
+        <activity
+            android:name=".ui.TemplateTestActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TemplateCoordinateFinder.NoActionBar"
+            android:parentActivityName=".MainActivity" />
+
 
         <!-- Accessibility Service for Screenshots -->
         <service

@@ -364,7 +364,7 @@ class RobustnessManager(private val context: Context) {
             }
             
             // Check service status
-            if (!CoordinateFinderService.isRunning()) {
+            if (!CoordinateFinderService.isRunning(context)) {
                 logger.warning(TAG, "Service not running during health check")
                 // Could attempt restart here if needed
             }

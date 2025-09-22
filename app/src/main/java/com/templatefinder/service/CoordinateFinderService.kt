@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.lifecycleScope
 import com.templatefinder.MainActivity
@@ -46,7 +47,16 @@ class CoordinateFinderService : Service() {
         @Volatile
         private var isServiceRunning = false
         
-        fun isRunning(): Boolean = isServiceRunning
+        fun isRunning(context: Context): Boolean {
+            val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            @Suppress("DEPRECATION")
+            for (service in activityManager.getRunningServices(Integer.MAX_VALUE)) {
+                if (CoordinateFinderService::class.java.name == service.service.className) {
+                    return true
+                }
+            }
+            return false
+        }
         
         /**
          * Start the coordinate finder service
@@ -131,8 +141,6 @@ class CoordinateFinderService : Service() {
         initializeComponents()
         createNotificationChannel()
         
-        isServiceRunning = true
-        
         Log.d(TAG, "CoordinateFinderService created")
     }
 
@@ -193,7 +201,7 @@ class CoordinateFinderService : Service() {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = "Notifications for coordinate finder service"
                 setShowBadge(false)
@@ -217,6 +225,7 @@ class CoordinateFinderService : Service() {
             currentTemplate = templateManager.loadCurrentTemplate()
             if (currentTemplate == null) {
                 val error = "No template available for search"
+                Log.e(TAG, error)
                 errorHandler.handleError(
                     category = ErrorHandler.CATEGORY_TEMPLATE,
                     severity = ErrorHandler.SEVERITY_HIGH,
@@ -226,6 +235,10 @@ class CoordinateFinderService : Service() {
                 )
                 notifyError(error)
                 return
+            } else {
+                Log.d(TAG, "Template loaded successfully: ${currentTemplate!!.templateBitmap.width}x${currentTemplate!!.templateBitmap.height}")
+                Log.d(TAG, "Template center: (${currentTemplate!!.centerX}, ${currentTemplate!!.centerY}), radius: ${currentTemplate!!.radius}")
+                Log.d(TAG, "Template threshold: ${currentTemplate!!.matchThreshold}")
             }
         } catch (e: Exception) {
             errorHandler.handleError(
@@ -261,6 +274,10 @@ class CoordinateFinderService : Service() {
     private fun stopSearch() {
         Log.d(TAG, "Stopping coordinate search")
         
+        mainHandler.post {
+            Toast.makeText(applicationContext, "Search service stopped", Toast.LENGTH_SHORT).show()
+        }
+
         isSearchActive.set(false)
         isPaused.set(false)
         
@@ -520,10 +537,31 @@ class CoordinateFinderService : Service() {
                 
                 // Show result notification
                 notificationManager.showResultNotification(result)
+
+                serviceScope.launch {
+                    // delay(2000) // Temporarily removed delay to make click immediate
+                    result.coordinates?.let {
+                        val accessibilityService = ScreenshotAccessibilityService.getInstance()
+                        if (accessibilityService != null) {
+                            // Apply offsets from settings
+                            val offsetX = appSettings?.clickOffsetX ?: 0
+                            val offsetY = appSettings?.clickOffsetY ?: 0
+                            val clickX = it.x + offsetX
+                            val clickY = it.y + offsetY
+
+                            Log.d(TAG, "Auto-clicking at (${it.x}, ${it.y}) with offset ($offsetX, $offsetY) -> ($clickX, $clickY)")
+                            // Show a visual marker for debugging (uncomment to use)
+                            // autoOpenManager.showClickMarker(clickX, clickY)
+                            accessibilityService.performClick(clickX, clickY)
+                        } else {
+                            Log.w(TAG, "Accessibility service not available for auto-click.")
+                        }
+                    }
+                }
                 
                 // Show overlay and auto-open app if configured
-                autoOpenManager.showResultOverlay(result)
-                autoOpenManager.bringAppToForeground(result)
+                // autoOpenManager.showResultOverlay(result)
+                // autoOpenManager.bringAppToForeground(result)
                 
                 // For now, continue searching after finding result
                 // This can be made configurable in future versions
@@ -555,6 +593,14 @@ class CoordinateFinderService : Service() {
             this, 0, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+        val stopIntent = Intent(this, CoordinateFinderService::class.java).apply {
+            action = ACTION_STOP_SEARCH
+        }
+        val stopPendingIntent = PendingIntent.getService(
+            this, 1, stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Coordinate Finder")
@@ -562,7 +608,8 @@ class CoordinateFinderService : Service() {
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", stopPendingIntent)
             .build()
     }
 
@@ -639,6 +686,7 @@ class CoordinateFinderService : Service() {
      */
     fun updateSettings() {
         loadSettings()
+        notificationManager.updateSettings()
         Log.d(TAG, "Settings updated")
     }
 
@@ -657,8 +705,6 @@ class CoordinateFinderService : Service() {
         templateMatchingService.cleanup()
         autoOpenManager.cleanup()
         robustnessManager.stopMonitoring()
-        
-        isServiceRunning = false
         
         Log.d(TAG, "CoordinateFinderService destroyed")
     }

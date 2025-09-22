@@ -49,4 +49,25 @@
     <string name="coordinates">Coordinates</string>
     <string name="confidence">Confidence</string>
     <string name="timestamp">Timestamp</string>
+    
+    <!-- Gallery template strings -->
+    <string name="select_from_gallery">From Gallery</string>
+    <string name="create_template_from_gallery">Create Template from Gallery</string>
+    <string name="select_image_from_gallery">Select Image from Gallery</string>
+    <string name="step_1_select_image">Step 1: Select Image</string>
+    <string name="step_2_select_point">Step 2: Select Template Point</string>
+    <string name="step_3_adjust_radius">Step 3: Adjust Template Radius</string>
+    <string name="select_image_instruction">Select an image from gallery to continue</string>
+    <string name="tap_to_select_point">Tap on the image to select template point</string>
+    <string name="template_radius">Template Radius</string>
+    <string name="image_loaded_tap_instruction">Image loaded. Tap to select template point.</string>
+    <string name="template_point_selected">Template point selected: (%1$d, %2$d)</string>
+    <string name="selected_point_info">Selected point: (%1$d, %2$d)\nRadius: %3$dpx</string>
+    <string name="permission_required_gallery">Permission required to access gallery</string>
+    <string name="error_opening_gallery">Error opening gallery</string>
+    <string name="failed_to_load_image">Failed to load image</string>
+    <string name="error_loading_image">Error loading image</string>
+    <string name="template_created_from_gallery">Template created from gallery!</string>
+    <string name="failed_to_save_template">Failed to save template</string>
+    <string name="error_creating_template">Error creating template</string>
 </resources>

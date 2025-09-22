@@ -2,14 +2,22 @@ package com.templatefinder.service
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+//import android.accessibilityservice.AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
 // FLAG_TAKE_SCREENSHOT is available from API 30+
 import android.graphics.Bitmap
+import android.graphics.Path
+import android.graphics.Point
+import android.accessibilityservice.GestureDescription
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.RequiresApi
+import java.util.ArrayDeque
+import java.util.Deque
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
@@ -85,17 +93,26 @@ class ScreenshotAccessibilityService : AccessibilityService() {
             val info = AccessibilityServiceInfo().apply {
                 eventTypes = AccessibilityEvent.TYPES_ALL_MASK
                 feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
-                flags = AccessibilityServiceInfo.DEFAULT
                 
                 // Enable screenshot capability if supported
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    flags = flags or 0x00000040 // FLAG_TAKE_SCREENSHOT value
+                flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    AccessibilityServiceInfo.DEFAULT or 0x00000040 // FLAG_TAKE_SCREENSHOT value
+                } else {
+                    AccessibilityServiceInfo.DEFAULT
                 }
+                flags = flags or FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+                
+                // Add capabilities
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                    capabilities = capabilities or CAPABILITY_CAN_DISPATCH_GESTURES
+//                }
                 
                 // Set notification timeout
                 notificationTimeout = 100
             }
             
+            Log.i(TAG, "Final service flags: ${Integer.toBinaryString(info.flags)}")
+            Log.i(TAG, "Final service capabilities: ${Integer.toBinaryString(info.capabilities)}")
             serviceInfo = info
             
             Log.d(TAG, "Service configured successfully")
@@ -216,7 +233,12 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         // Clean up expired requests
         cleanupExpiredRequests()
         
-        processNextScreenshotRequest()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            processNextScreenshotRequest()
+        } else {
+            Log.w(TAG, "Screenshot API not supported on this API level.")
+            callback.onScreenshotError("Screenshot API requires Android 11 (API 30) or higher")
+        }
     }
 
     /**
@@ -371,6 +393,84 @@ class ScreenshotAccessibilityService : AccessibilityService() {
      */
     fun isScreenshotSupported(): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    }
+
+    /**
+     * Performs a click at the specified coordinates.
+     */
+    /**
+     * Performs a multi-click gesture at the specified coordinates.
+     */
+    /**
+     * Performs a single, simple click at the specified coordinates.
+     */
+    /**
+     * Performs a click using AccessibilityNodeInfo.ACTION_CLICK.
+     * This method finds the node at the specified coordinates, traverses up to find a clickable parent,
+     * and then performs the click action on that node. This is more reliable than coordinate-based gestures.
+     * @param x The x-coordinate of the click.
+     * @param y The y-coordinate of the click.
+     */
+    fun performClick(x: Int, y: Int) {
+        Log.i(TAG, "NODE CLICK: Attempting click via AccessibilityNodeInfo at ($x, $y)")
+        val root = rootInActiveWindow ?: run {
+            Log.e(TAG, "NODE CLICK: Cannot perform action, rootInActiveWindow is null.")
+            return
+        }
+
+        try {
+            val node = findSmallestNodeAt(root, x, y)
+            if (node == null) {
+                Log.w(TAG, "NODE CLICK: No node found at coordinates ($x, $y).")
+                return
+            }
+
+            var clickableNode: AccessibilityNodeInfo? = node
+            while (clickableNode != null && !clickableNode.isClickable) {
+                clickableNode = clickableNode.parent
+            }
+
+            if (clickableNode != null) {
+                Log.i(TAG, "NODE CLICK: Found clickable node: ${clickableNode.className}. Performing ACTION_CLICK.")
+                val success = clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                Log.i(TAG, "NODE CLICK: performAction(ACTION_CLICK) result: $success")
+            } else {
+                Log.w(TAG, "NODE CLICK: No clickable node found at or above coordinates.")
+            }
+
+        } finally {
+            // As per documentation, the root node must be recycled.
+            // Child nodes obtained during traversal are managed by the system or their parent.
+            root.recycle()
+        }
+    }
+
+    private fun findSmallestNodeAt(rootNode: AccessibilityNodeInfo, x: Int, y: Int): AccessibilityNodeInfo? {
+        val rootBounds = android.graphics.Rect()
+        rootNode.getBoundsInScreen(rootBounds)
+        if (!rootBounds.contains(x, y)) {
+            return null
+        }
+
+        // DFS to find the smallest node containing the point
+        val stack: Deque<AccessibilityNodeInfo> = ArrayDeque()
+        stack.push(rootNode)
+        var smallestNode: AccessibilityNodeInfo? = null
+
+        while (stack.isNotEmpty()) {
+            val currentNode = stack.pop()
+            val bounds = android.graphics.Rect()
+            currentNode.getBoundsInScreen(bounds)
+
+            if (bounds.contains(x, y)) {
+                smallestNode = currentNode // This is a better candidate
+                // Search deeper
+                for (i in 0 until currentNode.childCount) {
+                    stack.push(currentNode.getChild(i))
+                }
+            }
+        }
+        return smallestNode
     }
 
     /**

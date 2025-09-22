@@ -18,6 +18,7 @@ import com.templatefinder.service.ScreenshotAccessibilityService
 import com.templatefinder.ui.PermissionGuideActivity
 import com.templatefinder.ui.SettingsActivity
 import com.templatefinder.ui.TemplateCreationActivity
+import com.templatefinder.ui.TemplateTestActivity
 import com.templatefinder.util.PermissionManager
 import com.templatefinder.util.BatteryOptimizer
 import com.templatefinder.util.AppOptimizationManager
@@ -122,6 +123,9 @@ class MainActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             Log.d(TAG, "Settings updated")
             // Reload any settings-dependent components
+            if (::serviceCommunicationManager.isInitialized) {
+                serviceCommunicationManager.updateServiceSettings()
+            }
             updateUI()
         }
     }
@@ -404,6 +408,11 @@ class MainActivity : AppCompatActivity() {
         binding.resultsCard.setOnClickListener {
             toggleResultsDetails()
         }
+
+        binding.testTemplateButton.setOnClickListener {
+            val intent = Intent(this, TemplateTestActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun checkInitialState() {
@@ -426,7 +435,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkTemplateStatus() {
+        val previousStatus = hasTemplate
         hasTemplate = templateManager.hasCurrentTemplate()
+        
+        Log.d(TAG, "Checking template status: previous=$previousStatus, current=$hasTemplate")
         
         if (hasTemplate) {
             val templateInfo = templateManager.getTemplateInfo()
@@ -437,7 +449,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkServiceStatus() {
-        isSearchActive = CoordinateFinderService.isRunning()
+        isSearchActive = CoordinateFinderService.isRunning(this)
         Log.d(TAG, "Service running: $isSearchActive")
     }
 
@@ -699,9 +711,7 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.battery_critical_warning)
             BatteryOptimizer.OptimizationLevel.AGGRESSIVE -> 
                 getString(R.string.battery_low_warning)
-            BatteryOptimizer.OptimizationLevel.MODERATE -> 
-                "Battery optimization active"
-            BatteryOptimizer.OptimizationLevel.NORMAL -> null
+            else -> null
         }
         
         message?.let {

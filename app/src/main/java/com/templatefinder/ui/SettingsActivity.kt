@@ -24,6 +24,7 @@ class SettingsActivity : AppCompatActivity() {
         private const val DEFAULT_MATCH_THRESHOLD = 0.8f
         private const val DEFAULT_TEMPLATE_RADIUS = 50
         private const val DEFAULT_MAX_RESULTS = 10
+        private const val DEFAULT_CLICK_OFFSET = 0
         
         // Ranges
         private const val MIN_SEARCH_INTERVAL = 500L // 0.5 seconds
@@ -48,6 +49,9 @@ class SettingsActivity : AppCompatActivity() {
     private var enableVibration: Boolean = true
     private var enableAutoOpen: Boolean = false
     private var enableLogging: Boolean = false
+    private var enableAutoClick: Boolean = false
+    private var clickOffsetX: Int = DEFAULT_CLICK_OFFSET
+    private var clickOffsetY: Int = DEFAULT_CLICK_OFFSET
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -155,6 +159,10 @@ class SettingsActivity : AppCompatActivity() {
             enableLogging = isChecked
         }
 
+        binding.enableAutoClickSwitch.setOnCheckedChangeListener { _, isChecked ->
+            enableAutoClick = isChecked
+        }
+
         // Action Buttons
         binding.saveButton.setOnClickListener {
             saveSettings()
@@ -181,6 +189,9 @@ class SettingsActivity : AppCompatActivity() {
                 enableVibration = appSettings.vibrationEnabled
                 enableAutoOpen = appSettings.autoOpenEnabled
                 enableLogging = appSettings.loggingEnabled
+                enableAutoClick = appSettings.autoClickEnabled
+                clickOffsetX = appSettings.clickOffsetX
+                clickOffsetY = appSettings.clickOffsetY
 
                 // Update UI
                 updateUI()
@@ -205,6 +216,11 @@ class SettingsActivity : AppCompatActivity() {
         binding.enableVibrationSwitch.isChecked = enableVibration
         binding.enableAutoOpenSwitch.isChecked = enableAutoOpen
         binding.enableLoggingSwitch.isChecked = enableLogging
+        binding.enableAutoClickSwitch.isChecked = enableAutoClick
+
+        // Update Click Offsets
+        binding.clickOffsetXEditText.setText(clickOffsetX.toString())
+        binding.clickOffsetYEditText.setText(clickOffsetY.toString())
 
         // Update text displays
         updateSearchIntervalText()
@@ -239,6 +255,10 @@ class SettingsActivity : AppCompatActivity() {
                     return@launch
                 }
 
+                // Read values from EditTexts for offsets
+                val offsetX = binding.clickOffsetXEditText.text.toString().toIntOrNull() ?: 0
+                val offsetY = binding.clickOffsetYEditText.text.toString().toIntOrNull() ?: 0
+
                 // Save settings using AppSettings
                 val newSettings = AppSettings(
                     searchInterval = searchInterval,
@@ -249,7 +269,10 @@ class SettingsActivity : AppCompatActivity() {
                     notificationsEnabled = enableNotifications,
                     vibrationEnabled = enableVibration,
                     autoOpenEnabled = enableAutoOpen,
-                    loggingEnabled = enableLogging
+                    loggingEnabled = enableLogging,
+                    autoClickEnabled = enableAutoClick,
+                    clickOffsetX = offsetX,
+                    clickOffsetY = offsetY
                 )
                 newSettings.save(this@SettingsActivity)
 
@@ -304,6 +327,9 @@ class SettingsActivity : AppCompatActivity() {
         enableVibration = true
         enableAutoOpen = false
         enableLogging = false
+        enableAutoClick = false
+        clickOffsetX = DEFAULT_CLICK_OFFSET
+        clickOffsetY = DEFAULT_CLICK_OFFSET
 
         updateUI()
 

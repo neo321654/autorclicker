@@ -12,6 +12,7 @@ import com.templatefinder.util.AnalyticsManager
 import com.templatefinder.util.BatteryOptimizer
 import com.templatefinder.util.AccessibilityManager
 import com.templatefinder.util.PerformanceOptimizer
+import org.opencv.android.OpenCVLoader
 
 /**
  * Application class for handling system-wide events and initialization
@@ -46,6 +47,13 @@ class TemplateFinderApplication : Application() {
             
             // Initialize all optimization systems
             appOptimizationManager.initialize()
+
+            // Initialize OpenCV
+            if (!OpenCVLoader.initLocal()) {
+                logger.error(TAG, "OpenCV initialization failed!")
+            } else {
+                logger.info(TAG, "OpenCV loaded successfully")
+            }
             
             logger.info(TAG, "TemplateFinderApplication initialized with comprehensive optimizations")
             

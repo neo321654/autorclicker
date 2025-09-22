@@ -14,6 +14,7 @@ import com.templatefinder.MainActivity
 import com.templatefinder.R
 import com.templatefinder.model.AppSettings
 import com.templatefinder.model.SearchResult
+import com.templatefinder.service.CoordinateFinderService
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,7 +27,8 @@ class NotificationManager(private val context: Context) {
         private const val TAG = "NotificationManager"
         
         // Notification channels
-        private const val CHANNEL_RESULTS = "coordinate_results"
+        private const val CHANNEL_RESULTS_VIBRATE = "coordinate_results_vibrate"
+        private const val CHANNEL_RESULTS_NO_VIBRATE = "coordinate_results_no_vibrate"
         private const val CHANNEL_ALERTS = "coordinate_alerts"
         
         // Notification IDs
@@ -40,7 +42,7 @@ class NotificationManager(private val context: Context) {
 
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    private val appSettings = AppSettings.load(context)
+    private var appSettings = AppSettings.load(context)
     
     // Result history for multiple results
     private val resultHistory = mutableListOf<SearchResult>()
@@ -55,15 +57,26 @@ class NotificationManager(private val context: Context) {
      */
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Results channel
-            val resultsChannel = NotificationChannel(
-                CHANNEL_RESULTS,
-                "Coordinate Results",
+            // Results channel with vibration
+            val resultsChannelVibrate = NotificationChannel(
+                CHANNEL_RESULTS_VIBRATE,
+                "Coordinate Results (Vibration)",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Notifications when coordinates are found"
+                description = "Notifications for found coordinates with vibration"
                 enableVibration(true)
                 vibrationPattern = VIBRATION_PATTERN_RESULT
+                setShowBadge(true)
+            }
+
+            // Results channel without vibration
+            val resultsChannelNoVibrate = NotificationChannel(
+                CHANNEL_RESULTS_NO_VIBRATE,
+                "Coordinate Results (Silent)",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications for found coordinates without vibration"
+                enableVibration(false)
                 setShowBadge(true)
             }
             
@@ -79,7 +92,8 @@ class NotificationManager(private val context: Context) {
                 setShowBadge(false)
             }
             
-            notificationManager.createNotificationChannel(resultsChannel)
+            notificationManager.createNotificationChannel(resultsChannelVibrate)
+            notificationManager.createNotificationChannel(resultsChannelNoVibrate)
             notificationManager.createNotificationChannel(alertsChannel)
             
             Log.d(TAG, "Notification channels created")
@@ -98,14 +112,10 @@ class NotificationManager(private val context: Context) {
             // Add to history
             addToHistory(result)
             
-            // Create notification
+            // Create and show notification on the correct channel
             val notification = createResultNotification(result)
+            // Create and show notification on the correct channel
             notificationManager.notify(NOTIFICATION_ID_RESULT, notification)
-            
-            // Trigger vibration if enabled
-            if (shouldVibrate()) {
-                triggerVibration(VIBRATION_PATTERN_RESULT)
-            }
             
             Log.d(TAG, "Result notification shown: ${result.getFormattedCoordinates()}")
             
@@ -142,6 +152,8 @@ class NotificationManager(private val context: Context) {
      * Create notification for coordinate results
      */
     private fun createResultNotification(result: SearchResult): android.app.Notification {
+        val channelId = if (shouldVibrate()) CHANNEL_RESULTS_VIBRATE else CHANNEL_RESULTS_NO_VIBRATE
+
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("show_result", true)
@@ -158,7 +170,7 @@ class NotificationManager(private val context: Context) {
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         val timeString = timeFormat.format(Date(result.timestamp))
         
-        return NotificationCompat.Builder(context, CHANNEL_RESULTS)
+        return NotificationCompat.Builder(context, channelId)
             .setContentTitle("Coordinates Found!")
             .setContentText(result.getFormattedCoordinates())
             .setSubText("Confidence: ${result.getConfidencePercentage()}% at $timeString")
@@ -169,8 +181,29 @@ class NotificationManager(private val context: Context) {
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .addAction(createViewAction())
             .addAction(createShareAction(result))
+            .addAction(createStopServiceAction())
             .setStyle(createExpandedStyle(result))
             .build()
+    }
+
+    /**
+     * Create action to stop the search service
+     */
+    private fun createStopServiceAction(): NotificationCompat.Action {
+        val stopIntent = Intent(context, CoordinateFinderService::class.java).apply {
+            action = CoordinateFinderService.ACTION_STOP_SEARCH
+        }
+        
+        val pendingIntent = PendingIntent.getService(
+            context, 3, stopIntent, // Use a unique request code
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        return NotificationCompat.Action.Builder(
+            android.R.drawable.ic_menu_close_clear_cancel,
+            "Stop Service",
+            pendingIntent
+        ).build()
     }
 
     /**
@@ -348,16 +381,14 @@ class NotificationManager(private val context: Context) {
      * Check if vibration should be triggered based on settings
      */
     private fun shouldVibrate(): Boolean {
-        // For now, always vibrate
-        // This can be made configurable with app settings
-        return true
+        return appSettings.vibrationEnabled
     }
 
     /**
      * Update settings and reload configuration
      */
     fun updateSettings() {
-        // Reload settings when they change
+        appSettings = AppSettings.load(context)
         Log.d(TAG, "Notification settings updated")
     }
 

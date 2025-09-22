@@ -45,6 +45,20 @@ class TemplateCreationActivity : AppCompatActivity() {
     // UI state
     private var isCapturingScreenshot = false
     
+    // Activity result launcher for gallery template creation
+    private val galleryTemplateLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            Log.d(TAG, "Template created from gallery successfully")
+            Toast.makeText(this, "Template created from gallery!", Toast.LENGTH_LONG).show()
+            
+            // Return success and finish
+            setResult(RESULT_OK)
+            finish()
+        }
+    }
+    
     // Paint objects for drawing
     private val circlePaint = Paint().apply {
         color = Color.RED
@@ -98,6 +112,11 @@ class TemplateCreationActivity : AppCompatActivity() {
             captureScreenshot()
         }
         
+        // Gallery selection button
+        binding.selectFromGalleryButton.setOnClickListener {
+            openGalleryTemplateActivity()
+        }
+        
         // Save template button
         binding.saveTemplateButton.setOnClickListener {
             saveTemplate()
@@ -138,6 +157,17 @@ class TemplateCreationActivity : AppCompatActivity() {
         // ImageView touch handling
         binding.screenshotImageView.setOnTouchListener { _, event ->
             handleImageTouch(event)
+        }
+    }
+
+    private fun openGalleryTemplateActivity() {
+        try {
+            val intent = android.content.Intent(this, GalleryTemplateActivity::class.java)
+            galleryTemplateLauncher.launch(intent)
+            Log.d(TAG, "Opening gallery template activity")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening gallery template activity", e)
+            showError("Error opening gallery: ${e.message}")
         }
     }
 

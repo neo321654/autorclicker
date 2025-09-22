@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
@@ -16,6 +18,7 @@ import com.templatefinder.MainActivity
 import com.templatefinder.R
 import com.templatefinder.model.SearchResult
 import com.templatefinder.util.PermissionManager
+import androidx.appcompat.view.ContextThemeWrapper
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,6 +36,7 @@ class AutoOpenManager(private val context: Context) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var overlayView: View? = null
     private var isOverlayShowing = false
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     /**
      * Bring application to foreground when result is found
@@ -75,6 +79,11 @@ class AutoOpenManager(private val context: Context) {
      * Show overlay window with result information
      */
     fun showResultOverlay(result: SearchResult) {
+        if (isOverlayShowing) {
+            Log.d(TAG, "Overlay is already showing, not showing new one.")
+            return
+        }
+
         if (!result.found) {
             Log.d(TAG, "No result to show in overlay")
             return
@@ -85,27 +94,29 @@ class AutoOpenManager(private val context: Context) {
             return
         }
 
-        try {
-            // Remove existing overlay if present
-            hideResultOverlay()
-            
-            // Create overlay view
-            overlayView = createOverlayView(result)
-            
-            // Add overlay to window manager
-            val params = createOverlayLayoutParams()
-            windowManager.addView(overlayView, params)
-            isOverlayShowing = true
-            
-            Log.d(TAG, "Result overlay shown: ${result.getFormattedCoordinates()}")
-            
-            // Auto-hide overlay after duration
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+        mainHandler.post {
+            try {
+                // Remove existing overlay if present
                 hideResultOverlay()
-            }, OVERLAY_DISPLAY_DURATION)
-            
-        } catch (e: Exception) {
-            Log.e(TAG, "Error showing result overlay", e)
+                
+                // Create overlay view
+                overlayView = createOverlayView(result)
+                
+                // Add overlay to window manager
+                val params = createOverlayLayoutParams()
+                windowManager.addView(overlayView, params)
+                isOverlayShowing = true
+                
+                Log.d(TAG, "Result overlay shown: ${result.getFormattedCoordinates()}")
+                
+                // Auto-hide overlay after duration
+                mainHandler.postDelayed({
+                    hideResultOverlay()
+                }, OVERLAY_DISPLAY_DURATION)
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Error showing result overlay", e)
+            }
         }
     }
 
@@ -113,15 +124,19 @@ class AutoOpenManager(private val context: Context) {
      * Hide result overlay window
      */
     fun hideResultOverlay() {
-        try {
-            overlayView?.let { view ->
-                windowManager.removeView(view)
-                overlayView = null
-                isOverlayShowing = false
-                Log.d(TAG, "Result overlay hidden")
+        mainHandler.post {
+            try {
+                overlayView?.let { view ->
+                    if (view.isAttachedToWindow) {
+                        windowManager.removeView(view)
+                    }
+                    overlayView = null
+                    isOverlayShowing = false
+                    Log.d(TAG, "Result overlay hidden")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error hiding result overlay", e)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error hiding result overlay", e)
         }
     }
 
@@ -129,7 +144,8 @@ class AutoOpenManager(private val context: Context) {
      * Create overlay view with result information
      */
     private fun createOverlayView(result: SearchResult): View {
-        val inflater = LayoutInflater.from(context)
+        val themedContext = ContextThemeWrapper(context, R.style.Theme_TemplateCoordinateFinder)
+        val inflater = LayoutInflater.from(themedContext)
         val overlayView = inflater.inflate(R.layout.overlay_result, null)
         
         // Set result information
@@ -171,7 +187,6 @@ class AutoOpenManager(private val context: Context) {
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             type,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
             WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
             PixelFormat.TRANSLUCENT
@@ -254,7 +269,8 @@ class AutoOpenManager(private val context: Context) {
      * Create persistent overlay view with multiple results
      */
     private fun createPersistentOverlayView(results: List<SearchResult>): View {
-        val inflater = LayoutInflater.from(context)
+        val themedContext = ContextThemeWrapper(context, R.style.Theme_TemplateCoordinateFinder)
+        val inflater = LayoutInflater.from(themedContext)
         val overlayView = inflater.inflate(R.layout.overlay_persistent_results, null)
         
         // Set results information
@@ -295,8 +311,8 @@ class AutoOpenManager(private val context: Context) {
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             type,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
@@ -326,6 +342,61 @@ class AutoOpenManager(private val context: Context) {
     fun cleanup() {
         hideResultOverlay()
         Log.d(TAG, "AutoOpenManager cleaned up")
+    }
+
+    /**
+     * Shows a temporary visual marker at the specified coordinates for debugging.
+     * Requires overlay permission.
+     * @param x The x-coordinate for the marker center.
+     * @param y The y-coordinate for the marker center.
+     */
+    fun showClickMarker(x: Int, y: Int) {
+        if (!permissionManager.hasOverlayPermission()) {
+            Log.w(TAG, "No overlay permission, cannot show click marker.")
+            return
+        }
+
+        mainHandler.post {
+            try {
+                val markerView = View(context)
+                markerView.setBackgroundColor(0x88FF0000.toInt()) // Semi-transparent red
+
+                val size = 50 // 50x50 pixel marker
+                val params = WindowManager.LayoutParams(
+                    size,
+                    size,
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                    } else {
+                        @Suppress("DEPRECATION")
+                        WindowManager.LayoutParams.TYPE_PHONE
+                    },
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    PixelFormat.TRANSLUCENT
+                ).apply {
+                    gravity = Gravity.TOP or Gravity.START
+                    this.x = x - (size / 2) // Center the marker on the coordinate
+                    this.y = y - (size / 2)
+                }
+
+                windowManager.addView(markerView, params)
+                Log.i(TAG, "DEBUG: Displaying click marker at ($x, $y)")
+
+                // Remove the marker after a short delay
+                mainHandler.postDelayed({
+                    try {
+                        if (markerView.isAttachedToWindow) {
+                            windowManager.removeView(markerView)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error removing click marker", e)
+                    }
+                }, 2000L) // Display for 2 seconds
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error showing click marker", e)
+            }
+        }
     }
 
     /**
