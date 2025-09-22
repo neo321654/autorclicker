@@ -302,6 +302,58 @@ class TemplateMatchingService(private val context: Context) {
         }
     }
 
+    fun findAllMatches(screenshot: Bitmap, template: Template): List<SearchResult> {
+        Log.d(TAG, "Finding all matches in the image")
+
+        val screenshotSoftware = convertToSoftwareBitmap(screenshot)
+        val templateBitmap = convertToSoftwareBitmap(template.templateBitmap)
+        val templateWidth = templateBitmap.width
+        val templateHeight = templateBitmap.height
+
+        if (templateWidth > screenshotSoftware.width || templateHeight > screenshotSoftware.height) {
+            Log.w(TAG, "Template is larger than screenshot")
+            return emptyList()
+        }
+
+        val foundResults = mutableListOf<SearchResult>()
+        val searchWidth = screenshotSoftware.width - templateWidth
+        val searchHeight = screenshotSoftware.height - templateHeight
+
+        for (y in 0 until searchHeight step 10) {
+            for (x in 0 until searchWidth step 10) {
+                val similarity = calculateSimilarity(screenshotSoftware, templateBitmap, x, y)
+
+                if (similarity >= template.matchThreshold) {
+                    val centerX = x + templateWidth / 2
+                    val centerY = y + templateHeight / 2
+
+                    // Non-maximum suppression
+                    var isOverlapping = false
+                    for (foundResult in foundResults) {
+                        val dx = (foundResult.coordinates?.x ?: 0) - centerX
+                        val dy = (foundResult.coordinates?.y ?: 0) - centerY
+                        val distance = kotlin.math.sqrt((dx * dx + dy * dy).toDouble())
+                        if (distance < template.radius) {
+                            isOverlapping = true
+                            if (similarity > foundResult.confidence) {
+                                foundResults.remove(foundResult)
+                                foundResults.add(SearchResult.success(centerX, centerY, similarity.toFloat()))
+                            }
+                            break
+                        }
+                    }
+
+                    if (!isOverlapping) {
+                        foundResults.add(SearchResult.success(centerX, centerY, similarity.toFloat()))
+                    }
+                }
+            }
+        }
+
+        Log.d(TAG, "Found ${foundResults.size} matches")
+        return foundResults
+    }
+
     fun cleanup() {
         Log.d(TAG, "Cleaning up TemplateMatchingService")
         initializationCallback = null

@@ -313,6 +313,14 @@
             android:layout_marginTop="16dp"
             style="@style/Widget.Material3.Button.OutlinedButton" />
 
+        <Button
+            android:id="@+id/testTemplateButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Test Template"
+            android:layout_marginTop="8dp"
+            style="@style/Widget.Material3.Button.OutlinedButton" />
+
         <!-- Spacer for bottom padding -->
         <View
             android:layout_width="match_parent"
