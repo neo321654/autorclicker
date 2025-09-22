@@ -46,7 +46,16 @@ class CoordinateFinderService : Service() {
         @Volatile
         private var isServiceRunning = false
         
-        fun isRunning(): Boolean = isServiceRunning
+        fun isRunning(context: Context): Boolean {
+            val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            @Suppress("DEPRECATION")
+            for (service in activityManager.getRunningServices(Integer.MAX_VALUE)) {
+                if (CoordinateFinderService::class.java.name == service.service.className) {
+                    return true
+                }
+            }
+            return false
+        }
         
         /**
          * Start the coordinate finder service
@@ -130,8 +139,6 @@ class CoordinateFinderService : Service() {
         
         initializeComponents()
         createNotificationChannel()
-        
-        isServiceRunning = true
         
         Log.d(TAG, "CoordinateFinderService created")
     }
@@ -662,8 +669,6 @@ class CoordinateFinderService : Service() {
         templateMatchingService.cleanup()
         autoOpenManager.cleanup()
         robustnessManager.stopMonitoring()
-        
-        isServiceRunning = false
         
         Log.d(TAG, "CoordinateFinderService destroyed")
     }

@@ -195,7 +195,7 @@ class ServiceCommunicationManager(private val context: Context) {
     /**
      * Check if service is running
      */
-    fun isServiceRunning(): Boolean = CoordinateFinderService.isRunning()
+    fun isServiceRunning(): Boolean = CoordinateFinderService.isRunning(context)
 
     /**
      * Update service settings

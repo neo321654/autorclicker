@@ -446,7 +446,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkServiceStatus() {
-        isSearchActive = CoordinateFinderService.isRunning()
+        isSearchActive = CoordinateFinderService.isRunning(this)
         Log.d(TAG, "Service running: $isSearchActive")
     }
 
