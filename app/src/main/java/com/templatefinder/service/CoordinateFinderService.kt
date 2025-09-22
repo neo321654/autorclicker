@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.lifecycleScope
 import com.templatefinder.MainActivity
@@ -273,6 +274,10 @@ class CoordinateFinderService : Service() {
     private fun stopSearch() {
         Log.d(TAG, "Stopping coordinate search")
         
+        mainHandler.post {
+            Toast.makeText(applicationContext, "Search service stopped", Toast.LENGTH_SHORT).show()
+        }
+
         isSearchActive.set(false)
         isPaused.set(false)
         
