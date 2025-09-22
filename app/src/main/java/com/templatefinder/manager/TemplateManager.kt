@@ -208,6 +208,21 @@ class TemplateManager(private val context: Context) {
     }
 
     /**
+     * Load all named templates
+     */
+    fun loadAllNamedTemplates(): Map<String, Template> {
+        val templates = mutableMapOf<String, Template>()
+        val templateNames = getTemplateNames()
+        for (name in templateNames) {
+            loadNamedTemplate(name)?.let {
+                templates[name] = it
+            }
+        }
+        Log.d(TAG, "Loaded ${templates.size} named templates")
+        return templates
+    }
+
+    /**
      * Get template file information
      */
     fun getTemplateInfo(name: String? = null): TemplateInfo? {
