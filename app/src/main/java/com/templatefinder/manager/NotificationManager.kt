@@ -14,6 +14,7 @@ import com.templatefinder.MainActivity
 import com.templatefinder.R
 import com.templatefinder.model.AppSettings
 import com.templatefinder.model.SearchResult
+import com.templatefinder.service.CoordinateFinderService
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -169,8 +170,29 @@ class NotificationManager(private val context: Context) {
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .addAction(createViewAction())
             .addAction(createShareAction(result))
+            .addAction(createStopServiceAction())
             .setStyle(createExpandedStyle(result))
             .build()
+    }
+
+    /**
+     * Create action to stop the search service
+     */
+    private fun createStopServiceAction(): NotificationCompat.Action {
+        val stopIntent = Intent(context, CoordinateFinderService::class.java).apply {
+            action = CoordinateFinderService.ACTION_STOP_SEARCH
+        }
+        
+        val pendingIntent = PendingIntent.getService(
+            context, 3, stopIntent, // Use a unique request code
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        return NotificationCompat.Action.Builder(
+            android.R.drawable.ic_menu_close_clear_cancel,
+            "Stop Service",
+            pendingIntent
+        ).build()
     }
 
     /**
