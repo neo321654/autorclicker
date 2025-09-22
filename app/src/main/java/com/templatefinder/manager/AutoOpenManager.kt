@@ -345,6 +345,61 @@ class AutoOpenManager(private val context: Context) {
     }
 
     /**
+     * Shows a temporary visual marker at the specified coordinates for debugging.
+     * Requires overlay permission.
+     * @param x The x-coordinate for the marker center.
+     * @param y The y-coordinate for the marker center.
+     */
+    fun showClickMarker(x: Int, y: Int) {
+        if (!permissionManager.hasOverlayPermission()) {
+            Log.w(TAG, "No overlay permission, cannot show click marker.")
+            return
+        }
+
+        mainHandler.post {
+            try {
+                val markerView = View(context)
+                markerView.setBackgroundColor(0x88FF0000.toInt()) // Semi-transparent red
+
+                val size = 50 // 50x50 pixel marker
+                val params = WindowManager.LayoutParams(
+                    size,
+                    size,
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                    } else {
+                        @Suppress("DEPRECATION")
+                        WindowManager.LayoutParams.TYPE_PHONE
+                    },
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    PixelFormat.TRANSLUCENT
+                ).apply {
+                    gravity = Gravity.TOP or Gravity.START
+                    this.x = x - (size / 2) // Center the marker on the coordinate
+                    this.y = y - (size / 2)
+                }
+
+                windowManager.addView(markerView, params)
+                Log.i(TAG, "DEBUG: Displaying click marker at ($x, $y)")
+
+                // Remove the marker after a short delay
+                mainHandler.postDelayed({
+                    try {
+                        if (markerView.isAttachedToWindow) {
+                            windowManager.removeView(markerView)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error removing click marker", e)
+                    }
+                }, 2000L) // Display for 2 seconds
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error showing click marker", e)
+            }
+        }
+    }
+
+    /**
      * Data class for auto-open manager status
      */
     data class AutoOpenStatus(

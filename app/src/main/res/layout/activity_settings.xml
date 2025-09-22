@@ -97,6 +97,76 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Click Settings Section -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Click Settings"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="16dp"
+                    android:textColor="?attr/colorPrimary" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Click Offset X -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:hint="Offset X">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/clickOffsetXEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberSigned"
+                            android:text="0"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Click Offset Y -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:hint="Offset Y">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/clickOffsetYEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberSigned"
+                            android:text="0"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Notification Settings Section -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
