@@ -16,6 +16,7 @@ import com.templatefinder.MainActivity
 import com.templatefinder.R
 import com.templatefinder.model.SearchResult
 import com.templatefinder.util.PermissionManager
+import androidx.appcompat.view.ContextThemeWrapper
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -129,7 +130,8 @@ class AutoOpenManager(private val context: Context) {
      * Create overlay view with result information
      */
     private fun createOverlayView(result: SearchResult): View {
-        val inflater = LayoutInflater.from(context)
+        val themedContext = ContextThemeWrapper(context, R.style.Theme_TemplateCoordinateFinder)
+        val inflater = LayoutInflater.from(themedContext)
         val overlayView = inflater.inflate(R.layout.overlay_result, null)
         
         // Set result information
@@ -254,7 +256,8 @@ class AutoOpenManager(private val context: Context) {
      * Create persistent overlay view with multiple results
      */
     private fun createPersistentOverlayView(results: List<SearchResult>): View {
-        val inflater = LayoutInflater.from(context)
+        val themedContext = ContextThemeWrapper(context, R.style.Theme_TemplateCoordinateFinder)
+        val inflater = LayoutInflater.from(themedContext)
         val overlayView = inflater.inflate(R.layout.overlay_persistent_results, null)
         
         // Set results information
