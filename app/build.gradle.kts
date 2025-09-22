@@ -50,8 +50,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-ktx:1.8.2")
     
-    // Image processing (replacing OpenCV with Android built-in)
-    // We'll use Android's built-in Bitmap comparison instead
+    // Image processing
+    implementation("org.opencv:opencv-android:4.9.0")
     
     // For foreground service
     implementation("androidx.work:work-runtime-ktx:2.9.0")
