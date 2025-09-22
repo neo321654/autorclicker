@@ -79,6 +79,14 @@
             android:theme="@style/Theme.TemplateCoordinateFinder.NoActionBar"
             android:parentActivityName=".ui.TemplateCreationActivity" />
 
+        <!-- Template Test Activity -->
+        <activity
+            android:name=".ui.TemplateTestActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TemplateCoordinateFinder.NoActionBar"
+            android:parentActivityName=".MainActivity" />
+
+
         <!-- Accessibility Service for Screenshots -->
         <service
             android:name=".service.ScreenshotAccessibilityService"

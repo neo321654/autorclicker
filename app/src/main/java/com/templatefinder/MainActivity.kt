@@ -18,6 +18,7 @@ import com.templatefinder.service.ScreenshotAccessibilityService
 import com.templatefinder.ui.PermissionGuideActivity
 import com.templatefinder.ui.SettingsActivity
 import com.templatefinder.ui.TemplateCreationActivity
+import com.templatefinder.ui.TemplateTestActivity
 import com.templatefinder.util.PermissionManager
 import com.templatefinder.util.BatteryOptimizer
 import com.templatefinder.util.AppOptimizationManager
@@ -403,6 +404,11 @@ class MainActivity : AppCompatActivity() {
         // Results area click (for expanding details)
         binding.resultsCard.setOnClickListener {
             toggleResultsDetails()
+        }
+
+        binding.testTemplateButton.setOnClickListener {
+            val intent = Intent(this, TemplateTestActivity::class.java)
+            startActivity(intent)
         }
     }
 
