@@ -346,6 +346,9 @@ class AutoOpenManager(private val context: Context) {
 
     /**
      * Shows a temporary visual marker at the specified coordinates for debugging.
+     * Requires overlay permission.
+     * @param x The x-coordinate for the marker center.
+     * @param y The y-coordinate for the marker center.
      */
     fun showClickMarker(x: Int, y: Int) {
         if (!permissionManager.hasOverlayPermission()) {

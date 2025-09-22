@@ -404,6 +404,13 @@ class ScreenshotAccessibilityService : AccessibilityService() {
     /**
      * Performs a single, simple click at the specified coordinates.
      */
+    /**
+     * Performs a click using AccessibilityNodeInfo.ACTION_CLICK.
+     * This method finds the node at the specified coordinates, traverses up to find a clickable parent,
+     * and then performs the click action on that node. This is more reliable than coordinate-based gestures.
+     * @param x The x-coordinate of the click.
+     * @param y The y-coordinate of the click.
+     */
     fun performClick(x: Int, y: Int) {
         Log.i(TAG, "NODE CLICK: Attempting click via AccessibilityNodeInfo at ($x, $y)")
         val root = rootInActiveWindow ?: run {

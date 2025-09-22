@@ -14,7 +14,9 @@ data class AppSettings(
     val autoOpenEnabled: Boolean = false,
     val loggingEnabled: Boolean = true,
     val autoClickEnabled: Boolean = false,
+    /** Horizontal offset for the auto-click action, in pixels. */
     val clickOffsetX: Int = 0,
+    /** Vertical offset for the auto-click action, in pixels. */
     val clickOffsetY: Int = 0
 ) {
     
