@@ -27,7 +27,8 @@ class NotificationManager(private val context: Context) {
         private const val TAG = "NotificationManager"
         
         // Notification channels
-        private const val CHANNEL_RESULTS = "coordinate_results"
+        private const val CHANNEL_RESULTS_VIBRATE = "coordinate_results_vibrate"
+        private const val CHANNEL_RESULTS_NO_VIBRATE = "coordinate_results_no_vibrate"
         private const val CHANNEL_ALERTS = "coordinate_alerts"
         
         // Notification IDs
@@ -56,15 +57,26 @@ class NotificationManager(private val context: Context) {
      */
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Results channel
-            val resultsChannel = NotificationChannel(
-                CHANNEL_RESULTS,
-                "Coordinate Results",
+            // Results channel with vibration
+            val resultsChannelVibrate = NotificationChannel(
+                CHANNEL_RESULTS_VIBRATE,
+                "Coordinate Results (Vibration)",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Notifications when coordinates are found"
+                description = "Notifications for found coordinates with vibration"
                 enableVibration(true)
                 vibrationPattern = VIBRATION_PATTERN_RESULT
+                setShowBadge(true)
+            }
+
+            // Results channel without vibration
+            val resultsChannelNoVibrate = NotificationChannel(
+                CHANNEL_RESULTS_NO_VIBRATE,
+                "Coordinate Results (Silent)",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications for found coordinates without vibration"
+                enableVibration(false)
                 setShowBadge(true)
             }
             
@@ -80,7 +92,8 @@ class NotificationManager(private val context: Context) {
                 setShowBadge(false)
             }
             
-            notificationManager.createNotificationChannel(resultsChannel)
+            notificationManager.createNotificationChannel(resultsChannelVibrate)
+            notificationManager.createNotificationChannel(resultsChannelNoVibrate)
             notificationManager.createNotificationChannel(alertsChannel)
             
             Log.d(TAG, "Notification channels created")
@@ -99,14 +112,9 @@ class NotificationManager(private val context: Context) {
             // Add to history
             addToHistory(result)
             
-            // Create notification
+            // Create and show notification on the correct channel
             val notification = createResultNotification(result)
             notificationManager.notify(NOTIFICATION_ID_RESULT, notification)
-            
-            // Trigger vibration if enabled
-            if (shouldVibrate()) {
-                triggerVibration(VIBRATION_PATTERN_RESULT)
-            }
             
             Log.d(TAG, "Result notification shown: ${result.getFormattedCoordinates()}")
             
@@ -143,6 +151,8 @@ class NotificationManager(private val context: Context) {
      * Create notification for coordinate results
      */
     private fun createResultNotification(result: SearchResult): android.app.Notification {
+        val channelId = if (shouldVibrate()) CHANNEL_RESULTS_VIBRATE else CHANNEL_RESULTS_NO_VIBRATE
+
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("show_result", true)
@@ -159,7 +169,7 @@ class NotificationManager(private val context: Context) {
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         val timeString = timeFormat.format(Date(result.timestamp))
         
-        return NotificationCompat.Builder(context, CHANNEL_RESULTS)
+        return NotificationCompat.Builder(context, channelId)
             .setContentTitle("Coordinates Found!")
             .setContentText(result.getFormattedCoordinates())
             .setSubText("Confidence: ${result.getConfidencePercentage()}% at $timeString")
