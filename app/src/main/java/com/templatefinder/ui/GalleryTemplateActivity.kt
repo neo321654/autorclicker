@@ -365,15 +365,19 @@ class GalleryTemplateActivity : AppCompatActivity() {
                 // Create template name
                 val templateName = "Gallery_${System.currentTimeMillis()}"
                 
-                // Create template object
-                val template = Template(
+                // Create template from region around selected point
+                val template = Template.createFromRegion(
+                    sourceBitmap = bitmap,
                     centerX = templateX,
                     centerY = templateY,
                     radius = templateRadius,
-                    templateBitmap = bitmap,
-                    matchThreshold = 0.8f,
-                    createdAt = System.currentTimeMillis()
+                    matchThreshold = 0.8f
                 )
+                
+                if (template == null) {
+                    Toast.makeText(this@GalleryTemplateActivity, "Failed to create template from selected region", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
                 
                 // Save template as current active template and also as named template
                 val success = withContext(Dispatchers.IO) {

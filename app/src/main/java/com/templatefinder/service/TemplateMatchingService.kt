@@ -41,8 +41,15 @@ class TemplateMatchingService(private val context: Context) {
         template: Template,
         callback: TemplateMatchingCallback
     ) {
-        Log.d(TAG, "findTemplate called, but OpenCV is not used.")
-        callback.onMatchingError("OpenCV is not used in this version.")
+        Log.d(TAG, "Starting template matching without OpenCV")
+        
+        try {
+            val result = performBasicTemplateMatching(screenshot, template)
+            callback.onMatchingComplete(result)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in template matching", e)
+            callback.onMatchingError("Template matching failed: ${e.message}")
+        }
     }
 
     fun findTemplateMultiScale(
@@ -51,8 +58,15 @@ class TemplateMatchingService(private val context: Context) {
         scales: FloatArray = floatArrayOf(1.0f),
         callback: TemplateMatchingCallback
     ) {
-        Log.d(TAG, "findTemplateMultiScale called, but OpenCV is not used.")
-        callback.onMatchingError("OpenCV is not used in this version.")
+        Log.d(TAG, "Starting multi-scale template matching without OpenCV")
+        
+        try {
+            val result = performBasicTemplateMatching(screenshot, template)
+            callback.onMatchingComplete(result)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in multi-scale template matching", e)
+            callback.onMatchingError("Multi-scale template matching failed: ${e.message}")
+        }
     }
 
     fun preprocessBitmap(
@@ -114,6 +128,178 @@ class TemplateMatchingService(private val context: Context) {
         val matchingMethod: Int,
         val usePreprocessing: Boolean
     )
+
+    /**
+     * Basic template matching algorithm without OpenCV
+     * Uses simple pixel comparison within the template region
+     */
+    private fun performBasicTemplateMatching(screenshot: Bitmap, template: Template): SearchResult {
+        Log.d(TAG, "Performing basic template matching")
+        Log.d(TAG, "Screenshot: ${screenshot.width}x${screenshot.height}, config: ${screenshot.config}")
+        Log.d(TAG, "Template: ${template.templateBitmap.width}x${template.templateBitmap.height}, config: ${template.templateBitmap.config}")
+        Log.d(TAG, "Template center: (${template.centerX}, ${template.centerY}), radius: ${template.radius}")
+        
+        // Convert HARDWARE bitmaps to SOFTWARE for pixel access
+        val screenshotSoftware = convertToSoftwareBitmap(screenshot)
+        val templateBitmap = convertToSoftwareBitmap(template.templateBitmap)
+        val templateWidth = templateBitmap.width
+        val templateHeight = templateBitmap.height
+        
+        // Validate dimensions
+        if (templateWidth > screenshot.width || templateHeight > screenshot.height) {
+            Log.w(TAG, "Template is larger than screenshot")
+            return SearchResult.failure()
+        }
+        
+        var bestMatch = 0.0
+        var bestX = -1
+        var bestY = -1
+        
+        // Calculate search area
+        val searchWidth = screenshotSoftware.width - templateWidth + 1
+        val searchHeight = screenshotSoftware.height - templateHeight + 1
+        
+        // Limit search area for performance - search in center region and around template center
+        val maxSearchWidth = minOf(searchWidth, 400) // Limit to 400px width
+        val maxSearchHeight = minOf(searchHeight, 600) // Limit to 600px height
+        
+        // Start search from center of screen
+        val startX = maxOf(0, (screenshotSoftware.width - maxSearchWidth) / 2)
+        val startY = maxOf(0, (screenshotSoftware.height - maxSearchHeight) / 2)
+        val endX = minOf(searchWidth, startX + maxSearchWidth)
+        val endY = minOf(searchHeight, startY + maxSearchHeight)
+        
+        Log.d(TAG, "Full search area: ${searchWidth}x${searchHeight}")
+        Log.d(TAG, "Limited search area: ${maxSearchWidth}x${maxSearchHeight}")
+        Log.d(TAG, "Search bounds: ($startX,$startY) to ($endX,$endY)")
+        
+        var iterationCount = 0
+        val maxIterations = 2000 // Limit total iterations
+        
+        // Perform template matching by sliding the template over the screenshot
+        for (y in startY until endY step 10) { // Increased step for better performance
+            for (x in startX until endX step 10) {
+                iterationCount++
+                if (iterationCount > maxIterations) {
+                    Log.w(TAG, "Reached maximum iterations ($maxIterations), stopping search")
+                    break
+                }
+                
+                val similarity = calculateSimilarity(screenshotSoftware, templateBitmap, x, y)
+                
+                if (similarity > bestMatch) {
+                    bestMatch = similarity
+                    bestX = x + templateWidth / 2  // Center of template
+                    bestY = y + templateHeight / 2
+                    Log.d(TAG, "New best match: $bestMatch at ($bestX, $bestY)")
+                }
+                
+                // Early exit if we find a very good match
+                if (similarity > 0.9) {
+                    Log.d(TAG, "Found excellent match at ($bestX, $bestY) with similarity $similarity")
+                    return SearchResult.success(bestX, bestY, similarity.toFloat())
+                }
+                
+                // Log progress every 100 iterations
+                if (iterationCount % 100 == 0) {
+                    Log.d(TAG, "Search progress: $iterationCount iterations, best match: $bestMatch")
+                }
+            }
+            if (iterationCount > maxIterations) {
+                break
+            }
+        }
+        
+        Log.d(TAG, "Best match: similarity=$bestMatch at ($bestX, $bestY)")
+        
+        // Check if the best match meets the threshold
+        if (bestMatch >= template.matchThreshold) {
+            Log.d(TAG, "Match found above threshold: $bestMatch >= ${template.matchThreshold}")
+            return SearchResult.success(bestX, bestY, bestMatch.toFloat())
+        } else {
+            Log.d(TAG, "No match found above threshold: $bestMatch < ${template.matchThreshold}")
+            return SearchResult.failure()
+        }
+    }
+    
+    /**
+     * Calculate similarity between template and screenshot region
+     * Returns a value between 0.0 (no match) and 1.0 (perfect match)
+     */
+    private fun calculateSimilarity(screenshot: Bitmap, template: Bitmap, startX: Int, startY: Int): Double {
+        val templateWidth = template.width
+        val templateHeight = template.height
+        
+        var totalPixels = 0
+        var matchingPixels = 0
+        
+        // Sample pixels for comparison (every 5th pixel for better performance)
+        for (y in 0 until templateHeight step 5) {
+            for (x in 0 until templateWidth step 5) {
+                val screenshotX = startX + x
+                val screenshotY = startY + y
+                
+                // Bounds check
+                if (screenshotX >= screenshot.width || screenshotY >= screenshot.height) {
+                    continue
+                }
+                
+                val templatePixel = template.getPixel(x, y)
+                val screenshotPixel = screenshot.getPixel(screenshotX, screenshotY)
+                
+                // Compare RGB values with tolerance
+                val similarity = comparePixels(templatePixel, screenshotPixel)
+                matchingPixels += similarity
+                totalPixels++
+            }
+        }
+        
+        return if (totalPixels > 0) {
+            matchingPixels.toDouble() / totalPixels.toDouble()
+        } else {
+            0.0
+        }
+    }
+    
+    /**
+     * Convert HARDWARE bitmap to SOFTWARE bitmap for pixel access
+     */
+    private fun convertToSoftwareBitmap(bitmap: Bitmap): Bitmap {
+        return if (bitmap.config == Bitmap.Config.HARDWARE) {
+            Log.d(TAG, "Converting HARDWARE bitmap to SOFTWARE")
+            bitmap.copy(Bitmap.Config.ARGB_8888, false)
+        } else {
+            bitmap
+        }
+    }
+
+    /**
+     * Compare two pixels and return similarity (0 or 1)
+     * Uses color distance with tolerance
+     */
+    private fun comparePixels(pixel1: Int, pixel2: Int): Int {
+        val r1 = (pixel1 shr 16) and 0xFF
+        val g1 = (pixel1 shr 8) and 0xFF
+        val b1 = pixel1 and 0xFF
+        
+        val r2 = (pixel2 shr 16) and 0xFF
+        val g2 = (pixel2 shr 8) and 0xFF
+        val b2 = pixel2 and 0xFF
+        
+        // Calculate color distance
+        val rDiff = Math.abs(r1 - r2)
+        val gDiff = Math.abs(g1 - g2)
+        val bDiff = Math.abs(b1 - b2)
+        
+        // Use tolerance of 50 for each color channel (more permissive)
+        val tolerance = 50
+        
+        return if (rDiff <= tolerance && gDiff <= tolerance && bDiff <= tolerance) {
+            1 // Match
+        } else {
+            0 // No match
+        }
+    }
 
     fun cleanup() {
         Log.d(TAG, "Cleaning up TemplateMatchingService")

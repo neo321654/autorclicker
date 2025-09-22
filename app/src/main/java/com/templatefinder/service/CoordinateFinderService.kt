@@ -217,6 +217,7 @@ class CoordinateFinderService : Service() {
             currentTemplate = templateManager.loadCurrentTemplate()
             if (currentTemplate == null) {
                 val error = "No template available for search"
+                Log.e(TAG, error)
                 errorHandler.handleError(
                     category = ErrorHandler.CATEGORY_TEMPLATE,
                     severity = ErrorHandler.SEVERITY_HIGH,
@@ -226,6 +227,10 @@ class CoordinateFinderService : Service() {
                 )
                 notifyError(error)
                 return
+            } else {
+                Log.d(TAG, "Template loaded successfully: ${currentTemplate!!.templateBitmap.width}x${currentTemplate!!.templateBitmap.height}")
+                Log.d(TAG, "Template center: (${currentTemplate!!.centerX}, ${currentTemplate!!.centerY}), radius: ${currentTemplate!!.radius}")
+                Log.d(TAG, "Template threshold: ${currentTemplate!!.matchThreshold}")
             }
         } catch (e: Exception) {
             errorHandler.handleError(
