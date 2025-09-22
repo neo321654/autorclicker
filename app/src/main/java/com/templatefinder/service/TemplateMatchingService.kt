@@ -265,7 +265,8 @@ class TemplateMatchingService(private val context: Context) {
      * Convert HARDWARE bitmap to SOFTWARE bitmap for pixel access
      */
     private fun convertToSoftwareBitmap(bitmap: Bitmap): Bitmap {
-        return if (bitmap.config == Bitmap.Config.HARDWARE) {
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && 
+                   bitmap.config == Bitmap.Config.HARDWARE) {
             Log.d(TAG, "Converting HARDWARE bitmap to SOFTWARE")
             bitmap.copy(Bitmap.Config.ARGB_8888, false)
         } else {
