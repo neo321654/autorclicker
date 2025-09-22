@@ -79,6 +79,11 @@ class AutoOpenManager(private val context: Context) {
      * Show overlay window with result information
      */
     fun showResultOverlay(result: SearchResult) {
+        if (isOverlayShowing) {
+            Log.d(TAG, "Overlay is already showing, not showing new one.")
+            return
+        }
+
         if (!result.found) {
             Log.d(TAG, "No result to show in overlay")
             return
