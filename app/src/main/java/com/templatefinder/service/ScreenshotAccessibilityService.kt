@@ -90,6 +90,11 @@ class ScreenshotAccessibilityService : AccessibilityService() {
                 feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
                 flags = AccessibilityServiceInfo.DEFAULT
                 
+                // Add capabilities
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    this.capabilities = this.capabilities or AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
+                }
+                
                 // Enable screenshot capability if supported
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     flags = flags or 0x00000040 // FLAG_TAKE_SCREENSHOT value
@@ -409,7 +414,8 @@ class ScreenshotAccessibilityService : AccessibilityService() {
             startTime += delay
         }
 
-        dispatchGesture(gestureBuilder.build(), object : GestureResultCallback() {
+        val gesture = gestureBuilder.build()
+        val dispatched = dispatchGesture(gesture, object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription?) {
                 super.onCompleted(gestureDescription)
                 Log.d(TAG, "Multi-click gesture completed.")
@@ -420,6 +426,10 @@ class ScreenshotAccessibilityService : AccessibilityService() {
                 Log.w(TAG, "Multi-click gesture cancelled.")
             }
         }, null)
+
+        if (!dispatched) {
+            Log.e(TAG, "Gesture dispatch failed immediately.")
+        }
     }
 
     /**

@@ -539,7 +539,7 @@ class CoordinateFinderService : Service() {
                 notificationManager.showResultNotification(result)
 
                 serviceScope.launch {
-                    delay(500)
+                    delay(2000)
                     result.coordinates?.let {
                         val accessibilityService = ScreenshotAccessibilityService.getInstance()
                         if (accessibilityService != null) {
