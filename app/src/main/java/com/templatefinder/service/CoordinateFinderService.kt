@@ -540,7 +540,13 @@ class CoordinateFinderService : Service() {
 
                 if (appSettings?.autoClickEnabled == true) {
                     result.coordinates?.let {
-                        ScreenshotAccessibilityService.getInstance()?.performClick(it.x, it.y)
+                        val accessibilityService = ScreenshotAccessibilityService.getInstance()
+                        if (accessibilityService != null) {
+                            Log.d(TAG, "Auto-clicking at (${it.x}, ${it.y})")
+                            accessibilityService.performClick(it.x, it.y)
+                        } else {
+                            Log.w(TAG, "Accessibility service not available for auto-click.")
+                        }
                     }
                 }
                 
