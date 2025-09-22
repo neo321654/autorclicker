@@ -247,8 +247,15 @@ class TemplateMatchingService(private val context: Context) {
             Log.w(TAG, "OpenCV not initialized, returning original bitmap")
             return bitmap
         }
+
+        val softwareBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && bitmap.config == Bitmap.Config.HARDWARE) {
+            bitmap.copy(Bitmap.Config.ARGB_8888, false)
+        } else {
+            bitmap
+        }
+
         val src = Mat()
-        Utils.bitmapToMat(bitmap, src)
+        Utils.bitmapToMat(softwareBitmap, src)
         val dst = Mat()
 
         if (options.convertToGrayscale) {
