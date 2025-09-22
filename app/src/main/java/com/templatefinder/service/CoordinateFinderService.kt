@@ -660,6 +660,7 @@ class CoordinateFinderService : Service() {
      */
     fun updateSettings() {
         loadSettings()
+        notificationManager.updateSettings()
         Log.d(TAG, "Settings updated")
     }
 

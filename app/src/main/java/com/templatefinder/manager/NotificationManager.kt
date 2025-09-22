@@ -41,7 +41,7 @@ class NotificationManager(private val context: Context) {
 
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    private val appSettings = AppSettings.load(context)
+    private var appSettings = AppSettings.load(context)
     
     // Result history for multiple results
     private val resultHistory = mutableListOf<SearchResult>()
@@ -370,16 +370,14 @@ class NotificationManager(private val context: Context) {
      * Check if vibration should be triggered based on settings
      */
     private fun shouldVibrate(): Boolean {
-        // For now, always vibrate
-        // This can be made configurable with app settings
-        return true
+        return appSettings.vibrationEnabled
     }
 
     /**
      * Update settings and reload configuration
      */
     fun updateSettings() {
-        // Reload settings when they change
+        appSettings = AppSettings.load(context)
         Log.d(TAG, "Notification settings updated")
     }
 

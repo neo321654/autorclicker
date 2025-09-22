@@ -123,6 +123,9 @@ class MainActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             Log.d(TAG, "Settings updated")
             // Reload any settings-dependent components
+            if (::serviceCommunicationManager.isInitialized) {
+                serviceCommunicationManager.updateServiceSettings()
+            }
             updateUI()
         }
     }
