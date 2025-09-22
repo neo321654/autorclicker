@@ -379,29 +379,45 @@ class ScreenshotAccessibilityService : AccessibilityService() {
     /**
      * Performs a click at the specified coordinates.
      */
-    fun performClick(x: Int, y: Int) {
+    /**
+     * Performs a multi-click gesture at the specified coordinates.
+     */
+    fun performMultiClick(x: Int, y: Int, radius: Int, count: Int, delay: Long) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             Log.w(TAG, "Gesture dispatch is not supported on this API level.")
             return
         }
 
-        Log.d(TAG, "Performing click at ($x, $y)")
-        val path = Path().apply {
-            moveTo(x.toFloat(), y.toFloat())
-        }
+        Log.d(TAG, "Performing multi-click at ($x, $y) with radius $radius")
 
         val gestureBuilder = GestureDescription.Builder()
-        gestureBuilder.addStroke(GestureDescription.StrokeDescription(path, 0, 100L))
-        
+        val clickDuration = 50L // Duration of each tap
+
+        val points = listOf(
+            Point(x, y),
+            Point(x + radius, y),
+            Point(x - radius, y),
+            Point(x, y + radius),
+            Point(x, y - radius)
+        ).take(count)
+
+        var startTime = 0L
+        for (point in points) {
+            val path = Path()
+            path.moveTo(point.x.toFloat(), point.y.toFloat())
+            gestureBuilder.addStroke(GestureDescription.StrokeDescription(path, startTime, clickDuration))
+            startTime += delay
+        }
+
         dispatchGesture(gestureBuilder.build(), object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription?) {
                 super.onCompleted(gestureDescription)
-                Log.d(TAG, "Click gesture completed.")
+                Log.d(TAG, "Multi-click gesture completed.")
             }
 
             override fun onCancelled(gestureDescription: GestureDescription?) {
                 super.onCancelled(gestureDescription)
-                Log.w(TAG, "Click gesture cancelled.")
+                Log.w(TAG, "Multi-click gesture cancelled.")
             }
         }, null)
     }

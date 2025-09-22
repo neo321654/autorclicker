@@ -538,13 +538,16 @@ class CoordinateFinderService : Service() {
                 // Show result notification
                 notificationManager.showResultNotification(result)
 
-                result.coordinates?.let {
-                    val accessibilityService = ScreenshotAccessibilityService.getInstance()
-                    if (accessibilityService != null) {
-                        Log.d(TAG, "Auto-clicking at (${it.x}, ${it.y})")
-                        accessibilityService.performClick(it.x, it.y)
-                    } else {
-                        Log.w(TAG, "Accessibility service not available for auto-click.")
+                serviceScope.launch {
+                    delay(500)
+                    result.coordinates?.let {
+                        val accessibilityService = ScreenshotAccessibilityService.getInstance()
+                        if (accessibilityService != null) {
+                            Log.d(TAG, "Auto-clicking at (${it.x}, ${it.y})")
+                            accessibilityService.performMultiClick(it.x, it.y, 5, 5, 100)
+                        } else {
+                            Log.w(TAG, "Accessibility service not available for auto-click.")
+                        }
                     }
                 }
                 
