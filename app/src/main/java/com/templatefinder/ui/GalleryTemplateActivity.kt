@@ -375,19 +375,23 @@ class GalleryTemplateActivity : AppCompatActivity() {
                     createdAt = System.currentTimeMillis()
                 )
                 
-                // Save template
+                // Save template as current active template and also as named template
                 val success = withContext(Dispatchers.IO) {
-                    templateManager.saveNamedTemplate(template, templateName)
+                    val currentSaved = templateManager.saveCurrentTemplate(template)
+                    val namedSaved = templateManager.saveNamedTemplate(template, templateName)
+                    currentSaved && namedSaved
                 }
                 
                 if (success) {
-                    Log.d(TAG, "Template created successfully: $templateName")
+                    Log.d(TAG, "Template created and saved successfully: $templateName")
+                    Log.d(TAG, "Template saved as current: ${templateManager.hasCurrentTemplate()}")
                     Toast.makeText(this@GalleryTemplateActivity, getString(R.string.template_created_from_gallery), Toast.LENGTH_LONG).show()
                     
                     // Return success result
                     setResult(RESULT_OK)
                     finish()
                 } else {
+                    Log.e(TAG, "Failed to save template: $templateName")
                     Toast.makeText(this@GalleryTemplateActivity, getString(R.string.failed_to_save_template), Toast.LENGTH_LONG).show()
                 }
                 

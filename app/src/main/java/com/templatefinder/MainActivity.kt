@@ -426,7 +426,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkTemplateStatus() {
+        val previousStatus = hasTemplate
         hasTemplate = templateManager.hasCurrentTemplate()
+        
+        Log.d(TAG, "Checking template status: previous=$previousStatus, current=$hasTemplate")
         
         if (hasTemplate) {
             val templateInfo = templateManager.getTemplateInfo()

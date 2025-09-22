@@ -76,7 +76,7 @@
         <activity
             android:name=".ui.GalleryTemplateActivity"
             android:exported="false"
-            android:theme="@style/Theme.TemplateCoordinateFinder"
+            android:theme="@style/Theme.TemplateCoordinateFinder.NoActionBar"
             android:parentActivityName=".ui.TemplateCreationActivity" />
 
         <!-- Accessibility Service for Screenshots -->
