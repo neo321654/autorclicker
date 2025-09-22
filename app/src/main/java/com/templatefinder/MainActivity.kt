@@ -708,7 +708,7 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.battery_critical_warning)
             BatteryOptimizer.OptimizationLevel.AGGRESSIVE -> 
                 getString(R.string.battery_low_warning)
-            BatteryOptimizer.OptimizationLevel.NORMAL -> null
+            else -> null
         }
         
         message?.let {
