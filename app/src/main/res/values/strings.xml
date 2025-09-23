@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Поиск по Шаблону</string>
+    <string name="app_name">EasyClicker</string>
     <string name="accessibility_service_description">Позволяет приложению делать снимки экрана для поиска по шаблону</string>
     <string name="create_template">Создать Шаблон</string>
     <string name="start_search">Начать Поиск</string>
