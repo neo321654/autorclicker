@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Setup Permissions"
+            android:text="@string/permission_guide_title"
             android:textSize="24sp"
             android:textStyle="bold"
             android:gravity="center"
@@ -22,7 +22,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="This app needs the following permissions to work properly:"
+            android:text="@string/permission_guide_description"
             android:textSize="16sp"
             android:layout_marginBottom="24dp" />
 
@@ -51,7 +51,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Accessibility Service"
+                    android:text="@string/permission_accessibility_title"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -68,7 +68,7 @@
                 android:id="@+id/btnEnableAccessibility"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Enable"
+                android:text="@string/enable_button"
                 style="@style/Widget.Material3.Button.OutlinedButton" />
 
         </LinearLayout>
@@ -98,14 +98,14 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Display over other apps"
+                    android:text="@string/permission_overlay_title"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Optional: Show results overlay"
+                    android:text="@string/permission_overlay_description"
                     android:textSize="14sp"
                     android:textColor="@android:color/darker_gray" />
 
@@ -115,7 +115,7 @@
                 android:id="@+id/btnEnableOverlay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Enable"
+                android:text="@string/enable_button"
                 style="@style/Widget.Material3.Button.OutlinedButton" />
 
         </LinearLayout>
@@ -145,14 +145,14 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Notifications"
+                    android:text="@string/permission_notifications_title"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Optional: Show search results"
+                    android:text="@string/permission_notifications_description"
                     android:textSize="14sp"
                     android:textColor="@android:color/darker_gray" />
 
@@ -162,7 +162,7 @@
                 android:id="@+id/btnEnableNotifications"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Enable"
+                android:text="@string/enable_button"
                 style="@style/Widget.Material3.Button.OutlinedButton" />
 
         </LinearLayout>
@@ -178,7 +178,7 @@
                 android:id="@+id/btnSkip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Skip"
+                android:text="@string/accessibility_skip_button"
                 android:layout_marginEnd="12dp"
                 style="@style/Widget.Material3.Button.TextButton" />
 
@@ -186,11 +186,11 @@
                 android:id="@+id/btnContinue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Continue"
+                android:text="@string/continue_button"
                 android:enabled="false" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-</ScrollView></ScrollView>
+</ScrollView>
