@@ -12,6 +12,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.view.accessibility.AccessibilityManager
+import com.templatefinder.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class PermissionManager(private val context: Context) {
     
