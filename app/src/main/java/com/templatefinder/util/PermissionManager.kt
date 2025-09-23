@@ -11,6 +11,7 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.util.Log
 import android.view.accessibility.AccessibilityManager
 import com.templatefinder.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -18,20 +19,27 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 class PermissionManager(private val context: Context) {
     
     companion object {
+        private const val TAG = "PermissionManager"
         const val REQUEST_CODE_OVERLAY_PERMISSION = 1001
         const val REQUEST_CODE_NOTIFICATION_PERMISSION = 1002
         const val REQUEST_CODE_ACCESSIBILITY_SETTINGS = 1003
     }
     
     /**
-     * Checks if accessibility service is enabled for this app
+     * Checks if the specific accessibility service is enabled for this app.
+     * This is the most reliable method.
      */
     fun isAccessibilityServiceEnabled(): Boolean {
-        val accessibilityManager = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
-        val enabledServices = accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-        
-        return enabledServices.any { serviceInfo ->
-            serviceInfo.resolveInfo.serviceInfo.packageName == context.packageName
+        val serviceId = "${context.packageName}/${com.templatefinder.service.ScreenshotAccessibilityService::class.java.canonicalName}"
+        try {
+            val enabledServices = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+            return enabledServices?.contains(serviceId, ignoreCase = false) ?: false
+        } catch (e: Exception) {
+            // On some devices, reading secure settings can fail. Fallback to the AccessibilityManager method.
+            Log.w(TAG, "Error reading secure settings, falling back to AccessibilityManager.", e)
+            val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+            val enabledServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC)
+            return enabledServices.any { it.id == serviceId }
         }
     }
     
