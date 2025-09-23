@@ -18,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.templatefinder.R
 import com.templatefinder.databinding.ActivityTemplateTestBinding
 import com.templatefinder.manager.TemplateManager
 import com.templatefinder.model.Template
@@ -64,7 +65,7 @@ class TemplateTestActivity : AppCompatActivity() {
     private fun setupUI() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.apply {
-            title = "Test Template Recognition"
+            title = getString(R.string.test_template_title)
             setDisplayHomeAsUpEnabled(true)
         }
         binding.startTestButton.isEnabled = false
@@ -96,7 +97,7 @@ class TemplateTestActivity : AppCompatActivity() {
                 decodeBitmapFromUri(uri)
             }
             binding.imageView.setImageBitmap(selectedImageBitmap)
-            binding.imageInfoText.text = "Image selected"
+            binding.imageInfoText.text = getString(R.string.image_selected)
             binding.progressBar.visibility = View.GONE
             updateTestButtonState()
         }
@@ -118,7 +119,7 @@ class TemplateTestActivity : AppCompatActivity() {
     private fun showTemplateSelectionDialog() {
         val templates = templateManager.loadAllNamedTemplates().toList()
         if (templates.isEmpty()) {
-            Toast.makeText(this, "No saved templates found.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.no_saved_templates_found), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -130,7 +131,7 @@ class TemplateTestActivity : AppCompatActivity() {
                 val (name, template) = templates[which]
                 selectedTemplateName = name
                 selectedTemplate = template
-                binding.templateInfoText.text = "Template: $name"
+                binding.templateInfoText.text = getString(R.string.template_selected_format, name)
                 updateTestButtonState()
             }
             .show()
@@ -158,7 +159,7 @@ class TemplateTestActivity : AppCompatActivity() {
                     binding.imageView.setImageBitmap(resultBitmap)
                     Toast.makeText(this@TemplateTestActivity, getString(R.string.found_matches, results.size), Toast.LENGTH_LONG).show()
                 } else {
-                    Toast.makeText(this@TemplateTestActivity, "No matches found.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@TemplateTestActivity, getString(R.string.no_matches_found), Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -203,4 +204,4 @@ class TemplateTestActivity : AppCompatActivity() {
         return true
     }
 }
-}
+

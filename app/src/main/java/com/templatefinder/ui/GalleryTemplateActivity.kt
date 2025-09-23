@@ -420,6 +420,5 @@ class GalleryTemplateActivity : AppCompatActivity() {
         
         Log.d(TAG, "GalleryTemplateActivity destroyed")
     }
-}y destroyed")
-    }
 }
+
