@@ -783,6 +783,5 @@ class MainActivity : AppCompatActivity() {
         
         Log.d(TAG, "MainActivity destroyed")
     }
-}estroyed")
-    }
 }
+
