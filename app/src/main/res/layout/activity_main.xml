@@ -281,7 +281,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Tap for details"
+                    android:text="@string/main_tap_for_details"
                     android:textSize="12sp"
                     android:textColor="@android:color/darker_gray"
                     android:gravity="center"
@@ -328,4 +328,4 @@
 
     </LinearLayout>
 
-</ScrollView>
+</ScrollView>ew>View>View>
