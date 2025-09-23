@@ -275,7 +275,7 @@ class CoordinateFinderService : Service() {
         Log.d(TAG, "Stopping coordinate search")
         
         mainHandler.post {
-            Toast.makeText(applicationContext, "Search service stopped", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, getString(R.string.search_service_stopped), Toast.LENGTH_SHORT).show()
         }
 
         isSearchActive.set(false)

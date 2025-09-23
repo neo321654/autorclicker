@@ -326,7 +326,7 @@ class TemplateCreationActivity : AppCompatActivity() {
             
             if (success) {
                 Log.d(TAG, "Template saved successfully")
-                Toast.makeText(this, "Template saved successfully!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.template_saved_successfully), Toast.LENGTH_SHORT).show()
                 
                 // Return success result
                 setResult(RESULT_OK)

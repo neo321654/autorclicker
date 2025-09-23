@@ -124,4 +124,22 @@
     <string name="reset_button">Reset</string>
     <string name="save_button">Save</string>
     <string name="select_language_dialog_title">Select Language</string>
+    <string name="error_initializing_app">Error initializing app: %1$s</string>
+    <string name="app_opened_automatically">App opened automatically - coordinates found!</string>
+    <string name="search_service_stopped">Search service stopped</string>
+    <string name="error_loading_image_with_message">Error loading image: %1$s</string>
+    <string name="error_creating_template_from_region">Failed to create template from selected region</string>
+    <string name="error_loading_settings">Error loading settings</string>
+    <string name="settings_saved">Settings saved</string>
+    <string name="error_saving_settings">Error saving settings: %1$s</string>
+    <string name="settings_reset_to_defaults">Settings reset to defaults</string>
+    <string name="template_saved_successfully">Template saved successfully!</string>
+    <string name="no_saved_templates_found">No saved templates found.</string>
+    <string name="found_matches">Found %1$d matches.</string>
+    <string name="no_matches_found">No matches found.</string>
+    <string name="permission_missing_title">Required Permission Missing</string>
+    <string name="select_template_title">Select a Template</string>
+    <string name="accessibility_service_required_title">Accessibility Service Required</string>
+    <string name="permission_missing_message">Accessibility service is required for the app to function. Please enable it to continue.</string>
+    <string name="accessibility_service_required_message">This app needs accessibility service permission to take screenshots. Please enable it in the next screen.</string>
 </resources>

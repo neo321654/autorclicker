@@ -125,7 +125,7 @@ class TemplateTestActivity : AppCompatActivity() {
         val adapter = TemplateListAdapter(this, templates)
 
         AlertDialog.Builder(this)
-            .setTitle("Select a Template")
+            .setTitle(R.string.select_template_title)
             .setAdapter(adapter) { _, which ->
                 val (name, template) = templates[which]
                 selectedTemplateName = name
@@ -156,7 +156,7 @@ class TemplateTestActivity : AppCompatActivity() {
                 if (results.isNotEmpty()) {
                     val resultBitmap = drawResultsOnBitmap(selectedImageBitmap!!, results)
                     binding.imageView.setImageBitmap(resultBitmap)
-                    Toast.makeText(this@TemplateTestActivity, "Found ${results.size} matches.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@TemplateTestActivity, getString(R.string.found_matches, results.size), Toast.LENGTH_LONG).show()
                 } else {
                     Toast.makeText(this@TemplateTestActivity, "No matches found.", Toast.LENGTH_LONG).show()
                 }
@@ -202,4 +202,5 @@ class TemplateTestActivity : AppCompatActivity() {
         finish()
         return true
     }
+}
 }

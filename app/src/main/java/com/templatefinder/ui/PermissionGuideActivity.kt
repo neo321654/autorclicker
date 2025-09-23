@@ -100,8 +100,8 @@ class PermissionGuideActivity : AppCompatActivity() {
     
     private fun showMinimumRequirementDialog() {
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Required Permission Missing")
-            .setMessage("Accessibility service is required for the app to function. Please enable it to continue.")
+            .setTitle(R.string.permission_missing_title)
+            .setMessage(R.string.permission_missing_message)
             .setPositiveButton("Enable") { _, _ ->
                 permissionManager.openAccessibilitySettings()
             }

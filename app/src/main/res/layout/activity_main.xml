@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -43,7 +44,7 @@
                     android:layout_height="24dp"
                     android:src="@android:drawable/ic_dialog_alert"
                     android:layout_marginEnd="12dp"
-                    android:contentDescription="Permission status" />
+                    android:contentDescription="@string/cd_permission_status" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -54,7 +55,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Permissions"
+                        android:text="@string/main_permissions"
                         android:textStyle="bold"
                         android:textSize="16sp" />
 
@@ -62,7 +63,7 @@
                         android:id="@+id/permissionStatusText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Checking permissions..."
+                        android:text="@string/main_checking_permissions"
                         android:textSize="14sp"
                         android:textColor="@android:color/darker_gray" />
 
@@ -72,7 +73,7 @@
                     android:id="@+id/permissionSetupButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Setup"
+                    android:text="@string/main_setup"
                     style="@style/Widget.Material3.Button.OutlinedButton" />
 
             </LinearLayout>
@@ -100,7 +101,7 @@
                     android:layout_height="24dp"
                     android:src="@android:drawable/ic_dialog_alert"
                     android:layout_marginEnd="12dp"
-                    android:contentDescription="Template status" />
+                    android:contentDescription="@string/cd_template_status" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -111,7 +112,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Template"
+                        android:text="@string/main_template"
                         android:textStyle="bold"
                         android:textSize="16sp" />
 
@@ -119,7 +120,7 @@
                         android:id="@+id/templateStatusText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No template created"
+                        android:text="@string/main_no_template_created"
                         android:textSize="14sp"
                         android:textColor="@android:color/darker_gray" />
 
@@ -153,7 +154,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Search Control"
+                    android:text="@string/main_search_control"
                     android:textStyle="bold"
                     android:textSize="18sp"
                     android:layout_marginBottom="12dp" />
@@ -162,7 +163,7 @@
                     android:id="@+id/searchStatusText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Ready to search"
+                    android:text="@string/main_ready_to_search"
                     android:textSize="14sp"
                     android:textColor="@android:color/darker_gray"
                     android:layout_marginBottom="16dp" />
@@ -204,7 +205,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Pause"
+                        android:text="@string/main_pause"
                         android:layout_marginEnd="4dp"
                         android:enabled="false"
                         style="@style/Widget.Material3.Button.OutlinedButton" />
@@ -214,7 +215,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Resume"
+                        android:text="@string/main_resume"
                         android:layout_marginStart="4dp"
                         android:enabled="false"
                         style="@style/Widget.Material3.Button.OutlinedButton" />
@@ -257,7 +258,7 @@
                     android:id="@+id/coordinatesText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="X: 0, Y: 0"
+                    android:text="@string/main_coordinates_placeholder"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="4dp" />
@@ -266,7 +267,7 @@
                     android:id="@+id/confidenceText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Confidence: 0%"
+                    android:text="@string/main_confidence_placeholder"
                     android:textSize="14sp"
                     android:layout_marginBottom="4dp" />
 
@@ -274,7 +275,7 @@
                     android:id="@+id/timestampText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Found at: --:--:--"
+                    android:text="@string/main_timestamp_placeholder"
                     android:textSize="12sp"
                     android:textColor="@android:color/darker_gray" />
 
@@ -297,7 +298,7 @@
             android:id="@+id/noResultsText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No coordinates found yet"
+            android:text="@string/main_no_coordinates_found"
             android:textSize="16sp"
             android:textColor="@android:color/darker_gray"
             android:gravity="center"
@@ -317,7 +318,7 @@
             android:id="@+id/testTemplateButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Test Template"
+            android:text="@string/main_test_template"
             android:layout_marginTop="8dp"
             style="@style/Widget.Material3.Button.OutlinedButton" />
 
