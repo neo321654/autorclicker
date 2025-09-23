@@ -142,4 +142,7 @@
     <string name="accessibility_service_required_title">Accessibility Service Required</string>
     <string name="permission_missing_message">Accessibility service is required for the app to function. Please enable it to continue.</string>
     <string name="accessibility_service_required_message">This app needs accessibility service permission to take screenshots. Please enable it in the next screen.</string>
+    <string name="test_template_title">Test Template Recognition</string>
+    <string name="image_selected">Image selected</string>
+    <string name="template_selected_format">Template: %1$s</string>
 </resources>
