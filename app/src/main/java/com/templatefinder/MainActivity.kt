@@ -359,7 +359,7 @@ class MainActivity : AppCompatActivity() {
                     updateResultsDisplay()
                     
                     // Show toast to indicate auto-open
-                    Toast.makeText(this, "App opened automatically - coordinates found!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.app_opened_automatically), Toast.LENGTH_LONG).show()
                     
                     Log.d(TAG, "App auto-opened for result: ${result.getFormattedCoordinates()}")
                 }
@@ -782,5 +782,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         Log.d(TAG, "MainActivity destroyed")
+    }
+}estroyed")
     }
 }

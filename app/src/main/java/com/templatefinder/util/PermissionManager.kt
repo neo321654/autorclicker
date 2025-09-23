@@ -130,8 +130,8 @@ class PermissionManager(private val context: Context) {
      */
     private fun showAccessibilityServiceDialog(activity: Activity) {
         android.app.AlertDialog.Builder(activity)
-            .setTitle("Accessibility Service Required")
-            .setMessage("This app needs accessibility service permission to take screenshots. Please enable it in the next screen.")
+            .setTitle(R.string.accessibility_service_required_title)
+            .setMessage(R.string.accessibility_service_required_message)
             .setPositiveButton("Open Settings") { _, _ ->
                 openAccessibilitySettings()
             }

@@ -375,7 +375,7 @@ class GalleryTemplateActivity : AppCompatActivity() {
                 )
                 
                 if (template == null) {
-                    Toast.makeText(this@GalleryTemplateActivity, "Failed to create template from selected region", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@GalleryTemplateActivity, getString(R.string.error_creating_template_from_region), Toast.LENGTH_LONG).show()
                     return@launch
                 }
                 
@@ -419,5 +419,7 @@ class GalleryTemplateActivity : AppCompatActivity() {
         selectedImageBitmap = null
         
         Log.d(TAG, "GalleryTemplateActivity destroyed")
+    }
+}y destroyed")
     }
 }

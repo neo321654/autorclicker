@@ -389,7 +389,7 @@ class SettingsActivity : AppCompatActivity() {
 
         updateUI()
 
-        Toast.makeText(this, "Settings reset to defaults", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.settings_reset_to_defaults), Toast.LENGTH_SHORT).show()
         Log.d(TAG, "Settings reset to defaults")
     }
 

@@ -125,4 +125,24 @@
     <string name="reset_button">Сбросить</string>
     <string name="save_button">Сохранить</string>
     <string name="select_language_dialog_title">Выберите язык</string>
+    <string name="error_initializing_app">Ошибка инициализации приложения: %1$s</string>
+    <string name="app_opened_automatically">Приложение открыто автоматически - координаты найдены!</string>
+    <string name="search_service_stopped">Служба поиска остановлена</string>
+    <string name="error_loading_image_with_message">Ошибка загрузки изображения: %1$s</string>
+    <string name="error_creating_template_from_region">Не удалось создать шаблон из выбранной области</string>
+    <string name="error_loading_settings">Ошибка загрузки настроек</string>
+    <string name="settings_saved">Настройки сохранены</string>
+    <string name="error_saving_settings">Ошибка сохранения настроек: %1$s</string>
+    <string name="settings_reset_to_defaults">Настройки сброшены по умолчанию</string>
+    <string name="template_saved_successfully">Шаблон успешно сохранен!</string>
+    <string name="no_saved_templates_found">Сохраненные шаблоны не найдены.</string>
+    <string name="found_matches">Найдено %1$d совпадений.</string>
+    <string name="no_matches_found">Совпадения не найдены.</string>
+    <string name="permission_missing_title">Отсутствует необходимое разрешение</string>
+    <string name="select_template_title">Выберите шаблон</string>
+    <string name="accessibility_service_required_title">Требуется служба доступности</string>
+    <string name="permission_missing_message">Служба доступности необходима для функционирования приложения. Пожалуйста, включите ее, чтобы продолжить.</string>
+    <string name="accessibility_service_required_message">Этому приложению требуется разрешение службы доступности для создания снимков экрана. Пожалуйста, включите его на следующем экране.</string>
+    <string name="cd_permission_status">Статус разрешений</string>
+    <string name="cd_template_status">Статус шаблона</string>
 </resources>
