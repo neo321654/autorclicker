@@ -3,7 +3,7 @@ package com.templatefinder.ui
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.AutoCompleteTextView
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
