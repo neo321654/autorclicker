@@ -1,7 +1,9 @@
 package com.templatefinder.ui
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.AutoCompleteTextView
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -94,7 +96,9 @@ class SettingsActivity : AppCompatActivity() {
 
         // Search Interval SeekBar
         binding.searchIntervalSeekBar.apply {
-            min = (MIN_SEARCH_INTERVAL / 100).toInt() // Scale down for SeekBar
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                min = (MIN_SEARCH_INTERVAL / 100).toInt() // Scale down for SeekBar
+            }
             max = (MAX_SEARCH_INTERVAL / 100).toInt()
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -110,7 +114,9 @@ class SettingsActivity : AppCompatActivity() {
 
         // Match Threshold SeekBar
         binding.matchThresholdSeekBar.apply {
-            min = (MIN_MATCH_THRESHOLD * 100).toInt()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                min = (MIN_MATCH_THRESHOLD * 100).toInt()
+            }
             max = (MAX_MATCH_THRESHOLD * 100).toInt()
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -126,7 +132,9 @@ class SettingsActivity : AppCompatActivity() {
 
         // Template Radius SeekBar
         binding.templateRadiusSeekBar.apply {
-            min = MIN_TEMPLATE_RADIUS
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                min = MIN_TEMPLATE_RADIUS
+            }
             max = MAX_TEMPLATE_RADIUS
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -142,7 +150,9 @@ class SettingsActivity : AppCompatActivity() {
 
         // Max Results SeekBar
         binding.maxResultsSeekBar.apply {
-            min = MIN_MAX_RESULTS
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                min = MIN_MAX_RESULTS
+            }
             max = MAX_MAX_RESULTS
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
