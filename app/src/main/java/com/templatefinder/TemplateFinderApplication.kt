@@ -4,6 +4,9 @@ import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.res.Configuration
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import com.templatefinder.model.AppSettings
 import com.templatefinder.util.ErrorHandler
 import com.templatefinder.util.Logger
 import com.templatefinder.util.AppOptimizationManager
@@ -32,6 +35,9 @@ class TemplateFinderApplication : Application() {
         super.onCreate()
         
         try {
+            // Apply the saved language setting first
+            applyLanguageSetting()
+
             // Initialize core utilities
             errorHandler = ErrorHandler.getInstance(this)
             logger = Logger.getInstance(this)
@@ -65,6 +71,13 @@ class TemplateFinderApplication : Application() {
                 Log.e(TAG, "Error tracking initialization error", analyticsError)
             }
         }
+    }
+
+    private fun applyLanguageSetting() {
+        val settings = AppSettings.load(this)
+        val appLocale = LocaleListCompat.forLanguageTags(settings.language)
+        AppCompatDelegate.setApplicationLocales(appLocale)
+        Log.d(TAG, "Applied language setting: ${settings.language}")
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
