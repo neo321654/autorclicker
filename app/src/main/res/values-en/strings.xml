@@ -1,0 +1,127 @@
+<resources>
+    <string name="app_name">Template Coordinate Finder</string>
+    <string name="accessibility_service_description">Allows the app to take screenshots for template matching</string>
+    <string name="create_template">Create Template</string>
+    <string name="start_search">Start Search</string>
+    <string name="stop_search">Stop Search</string>
+    <string name="settings">Settings</string>
+    <string name="coordinates_found">Coordinates Found</string>
+    <string name="no_template">No template created yet</string>
+    <string name="accessibility_permission_required">Accessibility permission required</string>
+    <string name="enable_accessibility_service">Please enable the accessibility service in Settings</string>
+    
+    <!-- Onboarding strings -->
+    <string name="onboarding_welcome_title">Welcome to Template Finder</string>
+    <string name="onboarding_welcome_description">Find coordinates on your screen by creating visual templates. Perfect for automation and accessibility.</string>
+    <string name="onboarding_template_title">Create Templates</string>
+    <string name="onboarding_template_description">Take a screenshot and mark a point with a radius to create a search template. The app will find similar areas on future screenshots.</string>
+    <string name="onboarding_search_title">Automatic Search</string>
+    <string name="onboarding_search_description">The app runs in the background, taking periodic screenshots and searching for your template. When found, you'll get the exact coordinates.</string>
+    <string name="onboarding_permissions_title">Permissions Required</string>
+    <string name="onboarding_permissions_description">To work properly, the app needs accessibility permissions to take screenshots and overlay permissions for notifications.</string>
+    
+    <!-- Accessibility strings -->
+    <string name="accessibility_next_button">Next page</string>
+    <string name="accessibility_skip_button">Skip onboarding</string>
+    <string name="accessibility_finish_button">Finish onboarding and start using the app</string>
+    <string name="accessibility_page_indicator">Page indicator</string>
+    
+    <!-- Battery optimization strings -->
+    <string name="battery_optimization_title">Battery Optimization</string>
+    <string name="battery_low_warning">Low battery detected - search frequency reduced</string>
+    <string name="battery_critical_warning">Critical battery level - consider charging</string>
+    <string name="power_save_mode_active">Power save mode active - optimizations applied</string>
+    
+    <!-- Analytics strings -->
+    <string name="analytics_permission_title">Help Improve the App</string>
+    <string name="analytics_permission_description">Allow anonymous usage analytics to help us improve the app?</string>
+    <string name="analytics_enabled">Analytics enabled</string>
+    <string name="analytics_disabled">Analytics disabled</string>
+    
+    <!-- Additional missing strings -->
+    <string name="pause_search">Pause Search</string>
+    <string name="resume_search">Resume Search</string>
+    <string name="permission_setup">Setup Permissions</string>
+    <string name="template_status">Template Status</string>
+    <string name="search_status">Search Status</string>
+    <string name="results">Results</string>
+    <string name="no_results">No results found</string>
+    <string name="coordinates">Coordinates</string>
+    <string name="confidence">Confidence</string>
+    <string name="timestamp">Timestamp</string>
+    
+    <!-- Gallery template strings -->
+    <string name="select_from_gallery">From Gallery</string>
+    <string name="create_template_from_gallery">Create Template from Gallery</string>
+    <string name="select_image_from_gallery">Select Image from Gallery</string>
+    <string name="step_1_select_image">Step 1: Select Image</string>
+    <string name="step_2_select_point">Step 2: Select Template Point</string>
+    <string name="step_3_adjust_radius">Step 3: Adjust Template Radius</string>
+    <string name="select_image_instruction">Select an image from gallery to continue</string>
+    <string name="tap_to_select_point">Tap on the image to select template point</string>
+    <string name="template_radius">Template Radius</string>
+    <string name="image_loaded_tap_instruction">Image loaded. Tap to select template point.</string>
+    <string name="template_point_selected">Template point selected: (%1$d, %2$d)</string>
+    <string name="selected_point_info">Selected point: (%1$d, %2$d)\nRadius: %3$dpx</string>
+    <string name="permission_required_gallery">Permission required to access gallery</string>
+    <string name="error_opening_gallery">Error opening gallery</string>
+    <string name="failed_to_load_image">Failed to load image</string>
+    <string name="error_loading_image">Error loading image</string>
+    <string name="template_created_from_gallery">Template created from gallery!</string>
+    <string name="failed_to_save_template">Failed to save template</string>
+    <string name="error_creating_template">Error creating template</string>
+    <string name="selected_point_placeholder">Selected point: (0, 0)</string>
+    <string name="radius_placeholder">Radius: 50px</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="main_permissions">Permissions</string>
+    <string name="main_checking_permissions">Checking permissions...</string>
+    <string name="main_setup">Setup</string>
+    <string name="main_template">Template</string>
+    <string name="main_no_template_created">No template created</string>
+    <string name="main_search_control">Search Control</string>
+    <string name="main_ready_to_search">Ready to search</string>
+    <string name="main_pause">Pause</string>
+    <string name="main_resume">Resume</string>
+    <string name="main_coordinates_placeholder">X: 0, Y: 0</string>
+    <string name="main_confidence_placeholder">Confidence: 0%</string>
+    <string name="main_timestamp_placeholder">Found at: --:--:--</string>
+    <string name="main_tap_for_details">Tap for details</string>
+    <string name="main_no_coordinates_found">No coordinates found yet</string>
+    <string name="main_test_template">Test Template</string>
+    <string name="get_started_button">Get Started</string>
+    <string name="permission_guide_title">Setup Permissions</string>
+    <string name="permission_guide_description">This app needs the following permissions to work properly:</string>
+    <string name="permission_accessibility_title">Accessibility Service</string>
+    <string name="permission_accessibility_description">Required to take screenshots</string>
+    <string name="enable_button">Enable</string>
+    <string name="permission_overlay_title">Display over other apps</string>
+    <string name="permission_overlay_description">Optional: Show results overlay</string>
+    <string name="permission_notifications_title">Notifications</string>
+    <string name="permission_notifications_description">Optional: Show search results</string>
+    <string name="continue_button">Continue</string>
+    <string name="settings_general">General</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_search_parameters">Search Parameters</string>
+    <string name="settings_search_interval_label">Search Interval: %1$.1fs</string>
+    <string name="settings_match_threshold_label">Match Threshold: %1$d%%</string>
+    <string name="settings_template_radius_label">Template Radius: %1$dpx</string>
+    <string name="settings_max_results_label">Max Results: %1$d</string>
+    <string name="settings_click_settings">Click Settings</string>
+    <string name="settings_offset_x_hint">Offset X</string>
+    <string name="settings_offset_y_hint">Offset Y</string>
+    <string name="settings_notification_settings">Notification Settings</string>
+    <string name="settings_enable_notifications">Enable Notifications</string>
+    <string name="settings_enable_notifications_desc">Show notifications when coordinates are found</string>
+    <string name="settings_enable_vibration">Enable Vibration</string>
+    <string name="settings_enable_vibration_desc">Vibrate when coordinates are found</string>
+    <string name="settings_auto_open">Auto Open App</string>
+    <string name="settings_auto_open_desc">Automatically bring app to foreground when found</string>
+    <string name="settings_auto_click">Auto Click</string>
+    <string name="settings_auto_click_desc">Automatically click on found coordinates</string>
+    <string name="settings_advanced_settings">Advanced Settings</string>
+    <string name="settings_enable_debug_logging">Enable Debug Logging</string>
+    <string name="settings_enable_debug_logging_desc">Enable detailed logging for debugging</string>
+    <string name="reset_button">Reset</string>
+    <string name="save_button">Save</string>
+    <string name="select_language_dialog_title">Select Language</string>
+</resources>

@@ -30,7 +30,7 @@ class SettingsActivity : AppCompatActivity() {
         private const val DEFAULT_TEMPLATE_RADIUS = 50
         private const val DEFAULT_MAX_RESULTS = 10
         private const val DEFAULT_CLICK_OFFSET = 0
-        private const val DEFAULT_LANGUAGE = "en"
+        private const val DEFAULT_LANGUAGE = "ru"
         
         // Ranges
         private const val MIN_SEARCH_INTERVAL = 500L // 0.5 seconds
@@ -204,7 +204,7 @@ class SettingsActivity : AppCompatActivity() {
     private fun showLanguageSelectionDialog() {
         val currentLanguageIndex = languageCodes.indexOf(language)
         MaterialAlertDialogBuilder(this)
-            .setTitle("Select Language")
+            .setTitle(getString(R.string.select_language_dialog_title))
             .setSingleChoiceItems(languages, currentLanguageIndex) { dialog, which ->
                 language = languageCodes[which]
                 updateLanguageText()
@@ -271,26 +271,26 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun updateLanguageText() {
         val currentLanguageIndex = languageCodes.indexOf(language)
-        val languageName = if (currentLanguageIndex != -1) languages[currentLanguageIndex] else "Default"
+        val languageName = if (currentLanguageIndex != -1) languages[currentLanguageIndex] else languageCodes[0]
         binding.languageEditText.setText(languageName)
     }
 
     private fun updateSearchIntervalText() {
         val seconds = searchInterval / 1000.0
-        binding.searchIntervalText.text = "Search Interval: ${seconds}s"
+        binding.searchIntervalText.text = getString(R.string.settings_search_interval_label, seconds)
     }
 
     private fun updateMatchThresholdText() {
         val percentage = (matchThreshold * 100).toInt()
-        binding.matchThresholdText.text = "Match Threshold: ${percentage}%"
+        binding.matchThresholdText.text = getString(R.string.settings_match_threshold_label, percentage)
     }
 
     private fun updateTemplateRadiusText() {
-        binding.templateRadiusText.text = "Template Radius: ${templateRadius}px"
+        binding.templateRadiusText.text = getString(R.string.settings_template_radius_label, templateRadius)
     }
 
     private fun updateMaxResultsText() {
-        binding.maxResultsText.text = "Max Results: $maxResults"
+        binding.maxResultsText.text = getString(R.string.settings_max_results_label, maxResults)
     }
 
     private fun saveSettings() {

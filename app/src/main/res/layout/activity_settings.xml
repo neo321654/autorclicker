@@ -111,7 +111,7 @@
                     android:id="@+id/templateRadiusText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Template Radius: 50px"
+                    tools:text="@string/settings_template_radius_label"
                     android:textSize="16sp"
                     android:layout_marginBottom="8dp" />
 
@@ -174,7 +174,7 @@
                         android:layout_weight="1"
                         android:layout_marginEnd="8dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:hint="Offset X">
+                        android:hint="@string/settings_offset_x_hint">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/clickOffsetXEditText"
@@ -358,7 +358,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Auto Click"
+                            android:text="@string/settings_auto_click"
                             android:textSize="16sp" />
 
                         <TextView
@@ -488,4 +488,4 @@
 
     </LinearLayout>
 
-</ScrollView>
+</ScrollView>w>

@@ -18,7 +18,7 @@ data class AppSettings(
     val clickOffsetX: Int = 0,
     /** Vertical offset for the auto-click action, in pixels. */
     val clickOffsetY: Int = 0,
-    val language: String = "en"
+    val language: String = "ru"
 ) {
     
     companion object {
