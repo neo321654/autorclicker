@@ -16,7 +16,7 @@
     <string name="onboarding_template_title">Create Templates</string>
     <string name="onboarding_template_description">Take a screenshot and mark a point with a radius to create a search template. The app will find similar areas on future screenshots.</string>
     <string name="onboarding_search_title">Automatic Search</string>
-    <string name="onboarding_search_description">The app runs in the background, taking periodic screenshots and searching for your template. When found, you'll get the exact coordinates.</string>
+    <string name="onboarding_search_description">The app runs in the background, taking periodic screenshots and searching for your template. When found, you\'ll get the exact coordinates.</string>
     <string name="onboarding_permissions_title">Permissions Required</string>
     <string name="onboarding_permissions_description">To work properly, the app needs accessibility permissions to take screenshots and overlay permissions for notifications.</string>
     
