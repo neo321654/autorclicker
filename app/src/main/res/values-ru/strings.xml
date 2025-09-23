@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Поиск по Шаблону</string>
+    <string name="accessibility_service_description">Позволяет приложению делать снимки экрана для поиска по шаблону</string>
+    <string name="create_template">Создать Шаблон</string>
+    <string name="start_search">Начать Поиск</string>
+    <string name="stop_search">Остановить Поиск</string>
+    <string name="settings">Настройки</string>
+    <string name="coordinates_found">Координаты найдены</string>
+    <string name="no_template">Шаблон еще не создан</string>
+    <string name="accessibility_permission_required">Требуется разрешение службы доступности</string>
+    <string name="enable_accessibility_service">Пожалуйста, включите службу доступности в Настройках</string>
+    
+    <!-- Onboarding strings -->
+    <string name="onboarding_welcome_title">Добро пожаловать в Поиск по Шаблону</string>
+    <string name="onboarding_welcome_description">Находите координаты на экране, создавая визуальные шаблоны. Идеально для автоматизации и специальных возможностей.</string>
+    <string name="onboarding_template_title">Создавайте Шаблоны</string>
+    <string name="onboarding_template_description">Сделайте снимок экрана и отметьте точку с радиусом, чтобы создать шаблон для поиска. Приложение будет находить похожие области на будущих снимках экрана.</string>
+    <string name="onboarding_search_title">Автоматический Поиск</string>
+    <string name="onboarding_search_description">Приложение работает в фоновом режиме, периодически делая снимки экрана и ища ваш шаблон. При нахождении вы получите точные координаты.</string>
+    <string name="onboarding_permissions_title">Требуются Разрешения</string>
+    <string name="onboarding_permissions_description">Для корректной работы приложению нужны разрешения службы доступности для создания снимков экрана и разрешение наложения для уведомлений.</string>
+    
+    <!-- Accessibility strings -->
+    <string name="accessibility_next_button">Следующая страница</string>
+    <string name="accessibility_skip_button">Пропустить обучение</string>
+    <string name="accessibility_finish_button">Завершить обучение и начать использовать приложение</string>
+    <string name="accessibility_page_indicator">Индикатор страницы</string>
+    
+    <!-- Battery optimization strings -->
+    <string name="battery_optimization_title">Оптимизация батареи</string>
+    <string name="battery_low_warning">Обнаружен низкий заряд батареи - частота поиска снижена</string>
+    <string name="battery_critical_warning">Критический уровень заряда батареи - рассмотрите возможность зарядки</string>
+    <string name="power_save_mode_active">Режим энергосбережения активен - применены оптимизации</string>
+    
+    <!-- Analytics strings -->
+    <string name="analytics_permission_title">Помогите улучшить приложение</string>
+    <string name="analytics_permission_description">Разрешить анонимную аналитику использования, чтобы помочь нам улучшить приложение?</string>
+    <string name="analytics_enabled">Аналитика включена</string>
+    <string name="analytics_disabled">Аналитика отключена</string>
+    
+    <!-- Additional missing strings -->
+    <string name="pause_search">Приостановить Поиск</string>
+    <string name="resume_search">Возобновить Поиск</string>
+    <string name="permission_setup">Настройка Разрешений</string>
+    <string name="template_status">Статус Шаблона</string>
+    <string name="search_status">Статус Поиска</string>
+    <string name="results">Результаты</string>
+    <string name="no_results">Результаты не найдены</string>
+    <string name="coordinates">Координаты</string>
+    <string name="confidence">Уверенность</string>
+    <string name="timestamp">Время</string>
+    
+    <!-- Gallery template strings -->
+    <string name="select_from_gallery">Из Галереи</string>
+    <string name="create_template_from_gallery">Создать Шаблон из Галереи</string>
+    <string name="select_image_from_gallery">Выбрать Изображение из Галереи</string>
+    <string name="step_1_select_image">Шаг 1: Выберите Изображение</string>
+    <string name="step_2_select_point">Шаг 2: Выберите Точку Шаблона</string>
+    <string name="step_3_adjust_radius">Шаг 3: Настройте Радиус Шаблона</string>
+    <string name="select_image_instruction">Выберите изображение из галереи, чтобы продолжить</string>
+    <string name="tap_to_select_point">Нажмите на изображение, чтобы выбрать точку шаблона</string>
+    <string name="template_radius">Радиус Шаблона</string>
+    <string name="image_loaded_tap_instruction">Изображение загружено. Нажмите, чтобы выбрать точку шаблона.</string>
+    <string name="template_point_selected">Точка шаблона выбрана: (%1$d, %2$d)</string>
+    <string name="selected_point_info">Выбранная точка: (%1$d, %2$d)
+Радиус: %3$dpx</string>
+    <string name="permission_required_gallery">Требуется разрешение для доступа к галерее</string>
+    <string name="error_opening_gallery">Ошибка при открытии галереи</string>
+    <string name="failed_to_load_image">Не удалось загрузить изображение</string>
+    <string name="error_loading_image">Ошибка при загрузке изображения</string>
+    <string name="template_created_from_gallery">Шаблон из галереи создан!</string>
+    <string name="failed_to_save_template">Не удалось сохранить шаблон</string>
+    <string name="error_creating_template">Ошибка при создании шаблона</string>
+</resources>

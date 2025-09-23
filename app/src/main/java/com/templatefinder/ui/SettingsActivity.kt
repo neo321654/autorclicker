@@ -5,7 +5,10 @@ import android.util.Log
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.templatefinder.R
 import com.templatefinder.databinding.ActivitySettingsBinding
 import com.templatefinder.model.AppSettings
@@ -25,6 +28,7 @@ class SettingsActivity : AppCompatActivity() {
         private const val DEFAULT_TEMPLATE_RADIUS = 50
         private const val DEFAULT_MAX_RESULTS = 10
         private const val DEFAULT_CLICK_OFFSET = 0
+        private const val DEFAULT_LANGUAGE = "en"
         
         // Ranges
         private const val MIN_SEARCH_INTERVAL = 500L // 0.5 seconds
@@ -40,6 +44,10 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var appSettings: AppSettings
     
+    // Language options
+    private val languages = arrayOf("English", "Русский")
+    private val languageCodes = arrayOf("en", "ru")
+
     // Current settings values
     private var searchInterval: Long = DEFAULT_SEARCH_INTERVAL
     private var matchThreshold: Float = DEFAULT_MATCH_THRESHOLD
@@ -52,6 +60,7 @@ class SettingsActivity : AppCompatActivity() {
     private var enableAutoClick: Boolean = false
     private var clickOffsetX: Int = DEFAULT_CLICK_OFFSET
     private var clickOffsetY: Int = DEFAULT_CLICK_OFFSET
+    private var language: String = DEFAULT_LANGUAGE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +77,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun setupActionBar() {
         supportActionBar?.apply {
-            title = "Settings"
+            title = getString(R.string.settings)
             setDisplayHomeAsUpEnabled(true)
         }
     }
@@ -78,6 +87,11 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupEventListeners() {
+        // Language Selection
+        binding.languageEditText.setOnClickListener {
+            showLanguageSelectionDialog()
+        }
+
         // Search Interval SeekBar
         binding.searchIntervalSeekBar.apply {
             min = (MIN_SEARCH_INTERVAL / 100).toInt() // Scale down for SeekBar
@@ -177,6 +191,18 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun showLanguageSelectionDialog() {
+        val currentLanguageIndex = languageCodes.indexOf(language)
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Select Language")
+            .setSingleChoiceItems(languages, currentLanguageIndex) { dialog, which ->
+                language = languageCodes[which]
+                updateLanguageText()
+                dialog.dismiss()
+            }
+            .show()
+    }
+
     private fun loadSettings() {
         lifecycleScope.launch {
             try {
@@ -192,6 +218,7 @@ class SettingsActivity : AppCompatActivity() {
                 enableAutoClick = appSettings.autoClickEnabled
                 clickOffsetX = appSettings.clickOffsetX
                 clickOffsetY = appSettings.clickOffsetY
+                language = appSettings.language
 
                 // Update UI
                 updateUI()
@@ -205,6 +232,9 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
+        // Update Language
+        updateLanguageText()
+
         // Update SeekBars
         binding.searchIntervalSeekBar.progress = (searchInterval / 100).toInt()
         binding.matchThresholdSeekBar.progress = (matchThreshold * 100).toInt()
@@ -227,6 +257,12 @@ class SettingsActivity : AppCompatActivity() {
         updateMatchThresholdText()
         updateTemplateRadiusText()
         updateMaxResultsText()
+    }
+
+    private fun updateLanguageText() {
+        val currentLanguageIndex = languageCodes.indexOf(language)
+        val languageName = if (currentLanguageIndex != -1) languages[currentLanguageIndex] else "Default"
+        binding.languageEditText.setText(languageName)
     }
 
     private fun updateSearchIntervalText() {
@@ -259,6 +295,8 @@ class SettingsActivity : AppCompatActivity() {
                 val offsetX = binding.clickOffsetXEditText.text.toString().toIntOrNull() ?: 0
                 val offsetY = binding.clickOffsetYEditText.text.toString().toIntOrNull() ?: 0
 
+                val oldLanguage = appSettings.language
+
                 // Save settings using AppSettings
                 val newSettings = AppSettings(
                     searchInterval = searchInterval,
@@ -272,12 +310,19 @@ class SettingsActivity : AppCompatActivity() {
                     loggingEnabled = enableLogging,
                     autoClickEnabled = enableAutoClick,
                     clickOffsetX = offsetX,
-                    clickOffsetY = offsetY
+                    clickOffsetY = offsetY,
+                    language = language
                 )
                 newSettings.save(this@SettingsActivity)
 
                 Log.d(TAG, "Settings saved successfully")
                 Toast.makeText(this@SettingsActivity, "Settings saved", Toast.LENGTH_SHORT).show()
+
+                // Apply the new locale if it changed
+                if (oldLanguage != language) {
+                    val appLocale = LocaleListCompat.forLanguageTags(language)
+                    AppCompatDelegate.setApplicationLocales(appLocale)
+                }
 
                 // Return to previous activity
                 setResult(RESULT_OK)
@@ -330,6 +375,7 @@ class SettingsActivity : AppCompatActivity() {
         enableAutoClick = false
         clickOffsetX = DEFAULT_CLICK_OFFSET
         clickOffsetY = DEFAULT_CLICK_OFFSET
+        language = DEFAULT_LANGUAGE
 
         updateUI()
 
