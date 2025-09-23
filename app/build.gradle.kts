@@ -18,7 +18,7 @@ android {
         create("release") {
             keyAlias = properties.getProperty("RELEASE_KEY_ALIAS")
             keyPassword = properties.getProperty("RELEASE_KEY_PASSWORD")
-            storeFile = file(properties.getProperty("RELEASE_STORE_FILE"))
+            storeFile = rootProject.file(properties.getProperty("RELEASE_STORE_FILE"))
             storePassword = properties.getProperty("RELEASE_STORE_PASSWORD")
         }
     }
