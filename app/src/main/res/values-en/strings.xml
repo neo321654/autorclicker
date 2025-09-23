@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Template Coordinate Finder</string>
+    <string name="app_name">EasyClicker</string>
     <string name="accessibility_service_description">Allows the app to take screenshots for template matching</string>
     <string name="create_template">Create Template</string>
     <string name="start_search">Start Search</string>
