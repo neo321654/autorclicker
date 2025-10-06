@@ -550,8 +550,10 @@ class CoordinateFinderService : Service() {
                             val clickY = it.y + offsetY
 
                             Log.d(TAG, "Auto-clicking at (${it.x}, ${it.y}) with offset ($offsetX, $offsetY) -> ($clickX, $clickY)")
-                            // Show a visual marker for debugging (uncomment to use)
-                            // autoOpenManager.showClickMarker(clickX, clickY)
+                            // Show a visual marker for debugging if enabled
+                            if (appSettings?.showClickMarker == true) {
+                                autoOpenManager.showClickMarker(clickX, clickY)
+                            }
                             accessibilityService.performClick(clickX, clickY)
                         } else {
                             Log.w(TAG, "Accessibility service not available for auto-click.")

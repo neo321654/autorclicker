@@ -4,21 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 
 data class AppSettings(
-    val searchInterval: Long = 5000L, // 5 seconds
-    val matchThreshold: Float = 0.8f,
-    val templateRadius: Int = 50,
-    val isSearchActive: Boolean = false,
-    val maxResults: Int = 10,
-    val notificationsEnabled: Boolean = true,
+    val searchInterval: Long = 2000L,
     val vibrationEnabled: Boolean = true,
     val autoOpenEnabled: Boolean = false,
-    val loggingEnabled: Boolean = true,
-    val autoClickEnabled: Boolean = false,
-    /** Horizontal offset for the auto-click action, in pixels. */
     val clickOffsetX: Int = 0,
-    /** Vertical offset for the auto-click action, in pixels. */
     val clickOffsetY: Int = 0,
-    val language: String = "ru"
+    val showClickMarker: Boolean = false
 ) {
     
     companion object {
@@ -78,9 +69,9 @@ data class AppSettings(
                 putBoolean(KEY_LOGGING_ENABLED, loggingEnabled)
                 putBoolean(KEY_AUTO_CLICK_ENABLED, autoClickEnabled)
                 putInt(KEY_CLICK_OFFSET_X, clickOffsetX)
-                putInt(KEY_CLICK_OFFSET_Y, clickOffsetY)
-                putString(KEY_LANGUAGE, language)
-                apply()
+            editor.putInt("clickOffsetY", settings.clickOffsetY)
+            editor.putBoolean("showClickMarker", settings.showClickMarker)
+            editor.apply()
             }
             true
         } catch (e: Exception) {
