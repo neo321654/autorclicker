@@ -3,7 +3,7 @@ package com.templatefinder.service
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
-//import android.accessibilityservice.AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
+import android.accessibilityservice.AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
 // FLAG_TAKE_SCREENSHOT is available from API 30+
 import android.graphics.Bitmap
 import android.graphics.Path
@@ -90,29 +90,24 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         
         try {
             // Configure service info
-            val info = AccessibilityServiceInfo().apply {
-                eventTypes = AccessibilityEvent.TYPES_ALL_MASK
-                feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
-                
-                // Enable screenshot capability if supported
-                flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    AccessibilityServiceInfo.DEFAULT or 0x00000040 // FLAG_TAKE_SCREENSHOT value
-                } else {
-                    AccessibilityServiceInfo.DEFAULT
-                }
-                flags = flags or FLAG_RETRIEVE_INTERACTIVE_WINDOWS
-                
-                // Add capabilities
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                    capabilities = capabilities or CAPABILITY_CAN_DISPATCH_GESTURES
-//                }
-                
-                // Set notification timeout
-                notificationTimeout = 100
+            val info = serviceInfo ?: AccessibilityServiceInfo()
+            info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK
+            info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
+
+            var newFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                AccessibilityServiceInfo.DEFAULT or 0x00000040 // FLAG_TAKE_SCREENSHOT value
+            } else {
+                AccessibilityServiceInfo.DEFAULT
             }
+            newFlags = newFlags or FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+            info.flags = newFlags
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                info.capabilities = info.capabilities or CAPABILITY_CAN_DISPATCH_GESTURES
+            }
+
+            info.notificationTimeout = 100
             
-            Log.i(TAG, "Final service flags: ${Integer.toBinaryString(info.flags)}")
-            Log.i(TAG, "Final service capabilities: ${Integer.toBinaryString(info.capabilities)}")
             serviceInfo = info
             
             Log.d(TAG, "Service configured successfully")
@@ -412,36 +407,53 @@ class ScreenshotAccessibilityService : AccessibilityService() {
      * @param y The y-coordinate of the click.
      */
     fun performClick(x: Int, y: Int) {
-        Log.i(TAG, "NODE CLICK: Attempting click via AccessibilityNodeInfo at ($x, $y)")
-        val root = rootInActiveWindow ?: run {
-            Log.e(TAG, "NODE CLICK: Cannot perform action, rootInActiveWindow is null.")
-            return
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Log.i(TAG, "GESTURE CLICK: Attempting realistic click via GestureDescription at ($x, $y)")
+            
+            val path = Path()
+            path.moveTo(x.toFloat(), y.toFloat())
+            
+            // Add a tiny, random movement
+            val random = java.util.Random()
+            val moveX = x + random.nextInt(3) - 1 // -1, 0, or 1
+            val moveY = y + random.nextInt(3) - 1 // -1, 0, or 1
+            path.lineTo(moveX.toFloat(), moveY.toFloat())
 
-        try {
-            val node = findSmallestNodeAt(root, x, y)
-            if (node == null) {
-                Log.w(TAG, "NODE CLICK: No node found at coordinates ($x, $y).")
+            val gestureBuilder = GestureDescription.Builder()
+            // The gesture will have a duration of 100ms
+            gestureBuilder.addStroke(GestureDescription.StrokeDescription(path, 0, 100))
+            
+            dispatchGesture(gestureBuilder.build(), null, null)
+        } else {
+            Log.i(TAG, "NODE CLICK: Attempting click via AccessibilityNodeInfo at ($x, $y)")
+            val root = rootInActiveWindow ?: run {
+                Log.e(TAG, "NODE CLICK: Cannot perform action, rootInActiveWindow is null.")
                 return
             }
 
-            var clickableNode: AccessibilityNodeInfo? = node
-            while (clickableNode != null && !clickableNode.isClickable) {
-                clickableNode = clickableNode.parent
-            }
+            try {
+                val node = findSmallestNodeAt(root, x, y)
+                if (node == null) {
+                    Log.w(TAG, "NODE CLICK: No node found at coordinates ($x, $y).")
+                    return
+                }
 
-            if (clickableNode != null) {
-                Log.i(TAG, "NODE CLICK: Found clickable node: ${clickableNode.className}. Performing ACTION_CLICK.")
-                val success = clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                Log.i(TAG, "NODE CLICK: performAction(ACTION_CLICK) result: $success")
-            } else {
-                Log.w(TAG, "NODE CLICK: No clickable node found at or above coordinates.")
-            }
+                var clickableNode: AccessibilityNodeInfo? = node
+                while (clickableNode != null && !clickableNode.isClickable) {
+                    clickableNode = clickableNode.parent
+                }
 
-        } finally {
-            // As per documentation, the root node must be recycled.
-            // Child nodes obtained during traversal are managed by the system or their parent.
-            root.recycle()
+                if (clickableNode != null) {
+                    Log.i(TAG, "NODE CLICK: Found clickable node: ${clickableNode.className}. Performing ACTION_CLICK.")
+                    val success = clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    Log.i(TAG, "NODE CLICK: performAction(ACTION_CLICK) result: $success")
+                } else {
+                    Log.w(TAG, "NODE CLICK: No clickable node found at or above coordinates.")
+                }
+
+            } finally {
+                root.recycle()
+            }
         }
     }
 
