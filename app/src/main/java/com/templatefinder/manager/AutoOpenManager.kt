@@ -361,6 +361,14 @@ class AutoOpenManager(private val context: Context) {
                 val markerView = View(context)
                 markerView.setBackgroundColor(0x88FF0000.toInt()) // Semi-transparent red
 
+                val resources = context.resources
+                val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+                val statusBarHeight = if (resourceId > 0) {
+                    resources.getDimensionPixelSize(resourceId)
+                } else {
+                    0
+                }
+
                 val size = 50 // 50x50 pixel marker
                 val params = WindowManager.LayoutParams(
                     size,
@@ -376,7 +384,7 @@ class AutoOpenManager(private val context: Context) {
                 ).apply {
                     gravity = Gravity.TOP or Gravity.START
                     this.x = x - (size / 2) // Center the marker on the coordinate
-                    this.y = y - (size / 2)
+                    this.y = y - (size / 2) - statusBarHeight
                 }
 
                 windowManager.addView(markerView, params)
