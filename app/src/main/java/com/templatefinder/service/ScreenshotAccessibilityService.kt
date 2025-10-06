@@ -125,9 +125,9 @@ class ScreenshotAccessibilityService : AccessibilityService() {
     }
 
     override fun onUnbind(intent: android.content.Intent?): Boolean {
-        Log.d(TAG, "ScreenshotAccessibilityService unbound")
-        hideNotification()
-        instance = null
+        Log.w(TAG, "ScreenshotAccessibilityService is being unbound by the system. The instance will NOT be cleared.")
+        // We no longer clear the instance here, as the service process might still be alive.
+        // We also don't hide the notification, as onDestroy has not been called.
         return super.onUnbind(intent)
     }
 
