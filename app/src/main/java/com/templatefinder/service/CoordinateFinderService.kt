@@ -541,14 +541,7 @@ class CoordinateFinderService : Service(), ScreenshotAccessibilityService.Servic
             // Validate result quality
             val threshold = currentTemplate?.matchThreshold ?: 0.8f
             Log.d(TAG, "[CONFIDENCE DEBUG] Confidence: ${result.confidence}, Threshold: $threshold")
-
-            val isMatch = if (threshold >= 1.0f) {
-                result.confidence == 1.0f
-            } else {
-                result.confidence >= threshold
-            }
-
-            if (isMatch) {
+            if (result.confidence >= threshold) {
                 notifyCallbacks { it.onResultFound(result) }
                 updateNotification("Found: ${result.getFormattedCoordinates()}")
                 
