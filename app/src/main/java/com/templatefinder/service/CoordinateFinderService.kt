@@ -168,6 +168,7 @@ class CoordinateFinderService : Service(), ScreenshotAccessibilityService.Servic
             appSettings = AppSettings.load(this)
 
             // Register as a listener for screenshot service connection events
+            ScreenshotAccessibilityService.removeConnectionListeners { it is CoordinateFinderService }
             ScreenshotAccessibilityService.addConnectionListener(this)
 
             // Start robustness monitoring

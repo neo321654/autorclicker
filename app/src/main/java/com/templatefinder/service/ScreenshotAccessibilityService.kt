@@ -51,6 +51,10 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         fun removeConnectionListener(listener: ServiceConnectionListener) {
             connectionListeners.remove(listener)
         }
+
+        fun removeConnectionListeners(predicate: (ServiceConnectionListener) -> Boolean) {
+            connectionListeners.removeAll(predicate)
+        }
     }
 
     // Queue for managing screenshot requests
