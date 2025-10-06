@@ -28,26 +28,7 @@ import java.util.concurrent.atomic.AtomicLong
 /**
  * Foreground service for continuous coordinate finding in the background
  */
-class CoordinateFinderService : Service() {
-
-    private var isAccessibilityServiceConnected = false
-
-    private val accessibilityServiceReceiver = object : android.content.BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
-                "com.easyclicker.ACCESSIBILITY_SERVICE_CONNECTED" -> {
-                    isAccessibilityServiceConnected = true
-                    Log.d(TAG, "Accessibility service connected broadcast received")
-                }
-                "com.easyclicker.ACCESSIBILITY_SERVICE_DISCONNECTED" -> {
-                    isAccessibilityServiceConnected = false
-                    Log.e(TAG, "Accessibility service disconnected broadcast received")
-                    notifyError("Accessibility service stopped. Please re-enable it.")
-                    stopSearch()
-                }
-            }
-        }
-    }
+class CoordinateFinderService : Service(), ScreenshotAccessibilityService.ServiceConnectionListener {
 
     companion object {
         private const val TAG = "CoordinateFinderService"
@@ -161,12 +142,6 @@ class CoordinateFinderService : Service() {
         createNotificationChannel()
         
         Log.d(TAG, "CoordinateFinderService created")
-
-        val filter = android.content.IntentFilter().apply {
-            addAction("com.easyclicker.ACCESSIBILITY_SERVICE_CONNECTED")
-            addAction("com.easyclicker.ACCESSIBILITY_SERVICE_DISCONNECTED")
-        }
-        registerReceiver(accessibilityServiceReceiver, filter)
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
@@ -191,6 +166,10 @@ class CoordinateFinderService : Service() {
             errorHandler = ErrorHandler.getInstance(this)
             robustnessManager = RobustnessManager.getInstance(this)
             appSettings = AppSettings.load(this)
+
+            // Register as a listener for screenshot service connection events
+            ScreenshotAccessibilityService.removeConnectionListeners { it is CoordinateFinderService }
+            ScreenshotAccessibilityService.addConnectionListener(this)
 
             // Start robustness monitoring
             robustnessManager.startMonitoring()
@@ -219,6 +198,16 @@ class CoordinateFinderService : Service() {
                 }
             }
         })
+    }
+
+    override fun onServiceConnected() {
+        Log.i(TAG, "ScreenshotAccessibilityService connected.")
+    }
+
+    override fun onServiceDisconnected() {
+        Log.e(TAG, "ScreenshotAccessibilityService disconnected. Stopping search.")
+        notifyError("Accessibility service stopped. Please re-enable it.")
+        stopSearch()
     }
 
     private fun createNotificationChannel() {
@@ -436,10 +425,6 @@ class CoordinateFinderService : Service() {
     private suspend fun captureScreenshotWithRetry(maxRetries: Int): Bitmap {
         repeat(maxRetries) { attempt ->
             try {
-                if (!isAccessibilityServiceConnected) {
-                    throw IllegalStateException("Accessibility service not connected")
-                }
-
                 val screenshotService = ScreenshotAccessibilityService.getInstance()
                     ?: throw IllegalStateException("Accessibility service not available")
 
@@ -730,8 +715,6 @@ class CoordinateFinderService : Service() {
         
         Log.d(TAG, "CoordinateFinderService destroying")
         
-        unregisterReceiver(accessibilityServiceReceiver)
-
         // Stop search
         isSearchActive.set(false)
         searchJob?.cancel()
@@ -742,6 +725,9 @@ class CoordinateFinderService : Service() {
         templateMatchingService.cleanup()
         autoOpenManager.cleanup()
         robustnessManager.stopMonitoring()
+
+        // Unregister listener
+        ScreenshotAccessibilityService.removeConnectionListener(this)
 
         // Ensure notification is removed
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
