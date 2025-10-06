@@ -432,11 +432,17 @@ class MainActivity : AppCompatActivity() {
         binding.forceStopButton.setOnClickListener {
             Log.d(TAG, "Force stopping all services")
 
-            serviceCommunicationManager.getService()?.prepareToStop()
-
-            // Unbind from the service, which will trigger onUnbind in the service and stop it.
-            if (::serviceCommunicationManager.isInitialized) {
+            val service = serviceCommunicationManager.getService()
+            if (service != null) {
+                // If we are bound, use the graceful onUnbind->stopSelf mechanism
+                Log.d(TAG, "Service is bound. Preparing for graceful stop.")
+                service.prepareToStop()
                 serviceCommunicationManager.unbindService()
+            } else {
+                // If not bound, just send a direct stop command.
+                // This covers the case where the service is running but the UI isn't connected.
+                Log.d(TAG, "Service is not bound. Sending direct stop command.")
+                CoordinateFinderService.stopService(this)
             }
 
             // Manually update UI to give immediate feedback
