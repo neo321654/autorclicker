@@ -28,27 +28,7 @@ import java.util.concurrent.atomic.AtomicLong
 /**
  * Foreground service for continuous coordinate finding in the background
  */
-class CoordinateFinderService : Service() {
-
-    private var screenshotService: ScreenshotAccessibilityService? = null
-    private var isScreenshotServiceBound = false
-
-    private val screenshotServiceConnection = object : android.content.ServiceConnection {
-        override fun onServiceConnected(name: android.content.ComponentName?, service: IBinder?) {
-            val binder = service as ScreenshotAccessibilityService.LocalBinder
-            screenshotService = binder.getService()
-            isScreenshotServiceBound = true
-            Log.d(TAG, "ScreenshotAccessibilityService connected")
-        }
-
-        override fun onServiceDisconnected(name: android.content.ComponentName?) {
-            screenshotService = null
-            isScreenshotServiceBound = false
-            Log.e(TAG, "ScreenshotAccessibilityService disconnected")
-            notifyError("Accessibility service stopped. Please re-enable it.")
-            stopSearch()
-        }
-    }
+class CoordinateFinderService : Service(), ScreenshotAccessibilityService.ServiceConnectionListener {
 
     companion object {
         private const val TAG = "CoordinateFinderService"
@@ -162,10 +142,6 @@ class CoordinateFinderService : Service() {
         createNotificationChannel()
         
         Log.d(TAG, "CoordinateFinderService created")
-
-        Intent(this, ScreenshotAccessibilityService::class.java).also { intent ->
-            bindService(intent, screenshotServiceConnection, Context.BIND_AUTO_CREATE)
-        }
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
@@ -190,6 +166,10 @@ class CoordinateFinderService : Service() {
             errorHandler = ErrorHandler.getInstance(this)
             robustnessManager = RobustnessManager.getInstance(this)
             appSettings = AppSettings.load(this)
+
+            // Register as a listener for screenshot service connection events
+            ScreenshotAccessibilityService.removeConnectionListeners { it is CoordinateFinderService }
+            ScreenshotAccessibilityService.addConnectionListener(this)
 
             // Start robustness monitoring
             robustnessManager.startMonitoring()
@@ -218,6 +198,16 @@ class CoordinateFinderService : Service() {
                 }
             }
         })
+    }
+
+    override fun onServiceConnected() {
+        Log.i(TAG, "ScreenshotAccessibilityService connected.")
+    }
+
+    override fun onServiceDisconnected() {
+        Log.e(TAG, "ScreenshotAccessibilityService disconnected. Stopping search.")
+        notifyError("Accessibility service stopped. Please re-enable it.")
+        stopSearch()
     }
 
     private fun createNotificationChannel() {
@@ -435,12 +425,12 @@ class CoordinateFinderService : Service() {
     private suspend fun captureScreenshotWithRetry(maxRetries: Int): Bitmap {
         repeat(maxRetries) { attempt ->
             try {
-                val service = screenshotService
+                val screenshotService = ScreenshotAccessibilityService.getInstance()
                     ?: throw IllegalStateException("Accessibility service not available")
 
                 val screenshot = withContext(Dispatchers.Main) {
                     suspendCancellableCoroutine<Bitmap?> { continuation ->
-                        service.takeScreenshot(object : ScreenshotAccessibilityService.ScreenshotCallback {
+                        screenshotService.takeScreenshot(object : ScreenshotAccessibilityService.ScreenshotCallback {
                             override fun onScreenshotTaken(bitmap: Bitmap?) {
                                 continuation.resumeWith(Result.success(bitmap))
                             }
@@ -725,12 +715,6 @@ class CoordinateFinderService : Service() {
         
         Log.d(TAG, "CoordinateFinderService destroying")
         
-        // Unbind from service
-        if (isScreenshotServiceBound) {
-            unbindService(screenshotServiceConnection)
-            isScreenshotServiceBound = false
-        }
-
         // Stop search
         isSearchActive.set(false)
         searchJob?.cancel()
@@ -741,6 +725,9 @@ class CoordinateFinderService : Service() {
         templateMatchingService.cleanup()
         autoOpenManager.cleanup()
         robustnessManager.stopMonitoring()
+
+        // Unregister listener
+        ScreenshotAccessibilityService.removeConnectionListener(this)
 
         // Ensure notification is removed
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
