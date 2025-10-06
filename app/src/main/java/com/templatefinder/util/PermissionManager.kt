@@ -30,17 +30,15 @@ class PermissionManager(private val context: Context) {
      * This is the most reliable method.
      */
     fun isAccessibilityServiceEnabled(): Boolean {
-        val serviceId = "${context.packageName}/${com.templatefinder.service.ScreenshotAccessibilityService::class.java.canonicalName}"
-        try {
-            val enabledServices = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
-            return enabledServices?.contains(serviceId, ignoreCase = false) ?: false
-        } catch (e: Exception) {
-            // On some devices, reading secure settings can fail. Fallback to the AccessibilityManager method.
-            Log.w(TAG, "Error reading secure settings, falling back to AccessibilityManager.", e)
-            val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
-            val enabledServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC)
-            return enabledServices.any { it.id == serviceId }
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        val enabledServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+        for (service in enabledServices) {
+            val serviceInfo = service.resolveInfo.serviceInfo
+            if (serviceInfo.packageName == context.packageName && serviceInfo.name == com.templatefinder.service.ScreenshotAccessibilityService::class.java.name) {
+                return true
+            }
         }
+        return false
     }
     
     /**
