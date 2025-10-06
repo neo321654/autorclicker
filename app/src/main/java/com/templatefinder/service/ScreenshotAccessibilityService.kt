@@ -16,6 +16,8 @@ import android.accessibilityservice.GestureDescription
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.IBinder
+import android.os.Binder
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
@@ -34,22 +36,19 @@ import java.util.concurrent.atomic.AtomicLong
  */
 class ScreenshotAccessibilityService : AccessibilityService() {
 
-    companion object {
-        private const val TAG = "ScreenshotAccessibilityService"
-        private const val MAX_QUEUE_SIZE = 10
-        private const val REQUEST_TIMEOUT_MS = 30000L // 30 seconds
-        private const val MIN_SCREENSHOT_INTERVAL_MS = 1000L // 1 second minimum between screenshots
+    private val binder = LocalBinder()
+    private val TAG = "ScreenshotAccessibilityService"
 
-        private const val ACC_NOTIFICATION_ID = 1002
-        private const val ACC_CHANNEL_ID = "accessibility_service_channel"
-        private const val ACC_CHANNEL_NAME = "Accessibility Service Status"
-        
-        @Volatile
-        private var instance: ScreenshotAccessibilityService? = null
+    private const val ACC_NOTIFICATION_ID = 1002
+    private const val ACC_CHANNEL_ID = "accessibility_service_channel"
+    private const val ACC_CHANNEL_NAME = "Accessibility Service Status"
 
-        fun getInstance(): ScreenshotAccessibilityService? = instance
+    inner class LocalBinder : Binder() {
+        fun getService(): ScreenshotAccessibilityService = this@ScreenshotAccessibilityService
+    }
 
-        fun isServiceRunning(): Boolean = instance != null
+    override fun onBind(intent: Intent): IBinder {
+        return binder
     }
 
     // Queue for managing screenshot requests
@@ -77,7 +76,6 @@ class ScreenshotAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        instance = this
         
         Log.d(TAG, "ScreenshotAccessibilityService connected")
         
@@ -118,8 +116,6 @@ class ScreenshotAccessibilityService : AccessibilityService() {
 
         // Clear pending requests and notify with errors
         clearPendingRequestsWithError("Service is being destroyed")
-        
-        instance = null
         
         Log.d(TAG, "ScreenshotAccessibilityService destroyed")
     }
@@ -477,7 +473,7 @@ class ScreenshotAccessibilityService : AccessibilityService() {
      */
     fun getServiceStatus(): ServiceStatus {
         return ServiceStatus(
-            isRunning = isServiceRunning(),
+            isRunning = true, // If you can call this, it's running.
             isScreenshotSupported = isScreenshotSupported(),
             pendingRequests = getPendingRequestsCount(),
             isProcessingScreenshot = isProcessingScreenshot.get(),
