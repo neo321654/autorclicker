@@ -471,7 +471,7 @@ class MainActivity : AppCompatActivity() {
             if (template != null) {
                 binding.currentTemplateImageView.setImageBitmap(template.templateBitmap)
                 binding.currentTemplateImageView.visibility = View.VISIBLE
-                Log.d(TAG, "Template found and displayed: ${template.name}")
+                Log.d(TAG, "Template found and displayed, created at: ${template.createdAt}")
             } else {
                 binding.currentTemplateImageView.visibility = View.GONE
                 hasTemplate = false // Correct state if template fails to load
