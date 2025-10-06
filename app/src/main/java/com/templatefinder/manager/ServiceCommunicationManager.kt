@@ -187,6 +187,10 @@ class ServiceCommunicationManager(private val context: Context) {
         return coordinateFinderService?.getStatus()
     }
 
+    fun getService(): CoordinateFinderService? {
+        return coordinateFinderService
+    }
+
     /**
      * Check if service is bound
      */
