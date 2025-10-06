@@ -12,7 +12,6 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.lifecycleScope
 import com.templatefinder.MainActivity
 import com.templatefinder.R
 import com.templatefinder.manager.TemplateManager
@@ -21,6 +20,7 @@ import com.templatefinder.model.SearchResult
 import com.templatefinder.model.Template
 import com.templatefinder.util.ErrorHandler
 import com.templatefinder.util.RobustnessManager
+import com.templatefinder.util.PermissionManager
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
@@ -29,29 +29,6 @@ import java.util.concurrent.atomic.AtomicLong
  * Foreground service for continuous coordinate finding in the background
  */
 class CoordinateFinderService : Service() {
-
-    private val serviceConnectedDeferred = CompletableDeferred<Boolean>()
-
-    private val accessibilityServiceReceiver = object : android.content.BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
-                "com.easyclicker.ACCESSIBILITY_SERVICE_CONNECTED" -> {
-                    if (!serviceConnectedDeferred.isCompleted) {
-                        serviceConnectedDeferred.complete(true)
-                    }
-                    Log.d(TAG, "Accessibility service connected broadcast received")
-                }
-                "com.easyclicker.ACCESSIBILITY_SERVICE_DISCONNECTED" -> {
-                    if (!serviceConnectedDeferred.isCompleted) {
-                        serviceConnectedDeferred.complete(false)
-                    }
-                    Log.e(TAG, "Accessibility service disconnected broadcast received")
-                    notifyError("Accessibility service stopped. Please re-enable it.")
-                    stopSearch()
-                }
-            }
-        }
-    }
 
     companion object {
         private const val TAG = "CoordinateFinderService"
@@ -114,6 +91,7 @@ class CoordinateFinderService : Service() {
     private lateinit var autoOpenManager: com.templatefinder.manager.AutoOpenManager
     private lateinit var errorHandler: ErrorHandler
     private lateinit var robustnessManager: RobustnessManager
+    private lateinit var permissionManager: PermissionManager
     private var appSettings: AppSettings? = null
     
     // Service state
@@ -166,16 +144,6 @@ class CoordinateFinderService : Service() {
         createNotificationChannel()
         
         Log.d(TAG, "CoordinateFinderService created")
-
-        val filter = android.content.IntentFilter().apply {
-            addAction("com.easyclicker.ACCESSIBILITY_SERVICE_CONNECTED")
-            addAction("com.easyclicker.ACCESSIBILITY_SERVICE_DISCONNECTED")
-        }
-        registerReceiver(accessibilityServiceReceiver, filter)
-
-        if (ScreenshotAccessibilityService.isServiceRunning()) {
-            serviceConnectedDeferred.complete(true)
-        }
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
@@ -202,6 +170,7 @@ class CoordinateFinderService : Service() {
             autoOpenManager = com.templatefinder.manager.AutoOpenManager(this)
             errorHandler = ErrorHandler.getInstance(this)
             robustnessManager = RobustnessManager.getInstance(this)
+            permissionManager = PermissionManager(this)
             appSettings = AppSettings.load(this)
 
             // Start robustness monitoring
@@ -403,7 +372,7 @@ class CoordinateFinderService : Service() {
             }
             
             // Get screenshot from accessibility service with retry logic
-            val screenshot = captureScreenshotWithRetry(maxRetries = 3)
+            val screenshot = captureScreenshotWithRetry(maxRetries = 5)
             
             // Preprocess screenshot if needed
             val processedScreenshot = preprocessScreenshotForMatching(screenshot)
@@ -445,16 +414,23 @@ class CoordinateFinderService : Service() {
     /**
      * Capture screenshot with retry logic
      */
-    private suspend fun captureScreenshotWithRetry(maxRetries: Int): Bitmap {
-        if (!serviceConnectedDeferred.await()) {
-            throw IllegalStateException("Accessibility service not connected")
-        }
+    /**
+     * Capture screenshot with retry logic, checking for accessibility service availability.
+     */
+    private suspend fun captureScreenshotWithRetry(maxRetries: Int, retryDelay: Long = 1000L): Bitmap {
+        var attempt = 0
+        val timeout = maxRetries * retryDelay
+        
+        while (attempt < maxRetries) {
+            // 1. Check if the accessibility service is enabled by the user
+            if (!permissionManager.isAccessibilityServiceEnabled()) {
+                throw IllegalStateException("Screenshot Accessibility Service is not enabled. Please enable it in settings.")
+            }
 
-        repeat(maxRetries) { attempt ->
-            try {
-                val screenshotService = ScreenshotAccessibilityService.getInstance()
-                    ?: throw IllegalStateException("Accessibility service not available")
-
+            // 2. Try to get the service instance
+            val screenshotService = ScreenshotAccessibilityService.getInstance()
+            if (screenshotService != null) {
+                // 3. If instance is available, try to take a screenshot
                 val screenshot = withContext(Dispatchers.Main) {
                     suspendCancellableCoroutine<Bitmap?> { continuation ->
                         screenshotService.takeScreenshot(object : ScreenshotAccessibilityService.ScreenshotCallback {
@@ -473,28 +449,20 @@ class CoordinateFinderService : Service() {
                         }
                     }
                 }
-                
                 if (screenshot != null) {
                     Log.d(TAG, "Screenshot captured successfully on attempt ${attempt + 1}")
-                    // Register bitmap for memory management
                     robustnessManager.registerBitmap(screenshot)
                     return screenshot
                 }
-                
-                // Wait before retry
-                if (attempt < maxRetries - 1) {
-                    delay(1000) // Wait 1 second before retry
-                }
-                
-            } catch (e: Exception) {
-                Log.e(TAG, "Exception during screenshot capture attempt ${attempt + 1}", e)
-                if (attempt == maxRetries - 1) {
-                    throw e
-                }
             }
+
+            // 4. If service is not available or screenshot failed, wait and retry
+            Log.w(TAG, "Attempt ${attempt + 1} to get screenshot service failed. Retrying in ${retryDelay}ms...")
+            attempt++
+            delay(retryDelay)
         }
         
-        throw IllegalStateException("Failed to capture screenshot after retries")
+        throw IllegalStateException("Failed to capture screenshot after $maxRetries retries (timeout: ${timeout}ms). The accessibility service might be crashing or unavailable.")
     }
 
     /**
@@ -742,8 +710,6 @@ class CoordinateFinderService : Service() {
         
         Log.d(TAG, "CoordinateFinderService destroying")
         
-        unregisterReceiver(accessibilityServiceReceiver)
-
         // Stop search
         isSearchActive.set(false)
         searchJob?.cancel()
