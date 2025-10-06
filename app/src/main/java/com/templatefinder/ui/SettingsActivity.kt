@@ -59,6 +59,7 @@ class SettingsActivity : AppCompatActivity() {
     private var enableAutoOpen: Boolean = false
     private var enableLogging: Boolean = false
     private var enableAutoClick: Boolean = false
+    private var showClickMarker: Boolean = false
     private var language: String = DEFAULT_LANGUAGE
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -184,6 +185,10 @@ class SettingsActivity : AppCompatActivity() {
             enableAutoClick = isChecked
         }
 
+        binding.showClickMarkerSwitch.setOnCheckedChangeListener { _, isChecked ->
+            showClickMarker = isChecked
+        }
+
         // Action Buttons
         binding.saveButton.setOnClickListener {
             saveSettings()
@@ -224,6 +229,7 @@ class SettingsActivity : AppCompatActivity() {
                 enableLogging = appSettings.loggingEnabled
                 enableAutoClick = appSettings.autoClickEnabled
                 language = appSettings.language
+                showClickMarker = appSettings.showClickMarker
 
                 // Update UI
                 updateUI()
@@ -252,6 +258,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.enableAutoOpenSwitch.isChecked = enableAutoOpen
         binding.enableLoggingSwitch.isChecked = enableLogging
         binding.enableAutoClickSwitch.isChecked = enableAutoClick
+        binding.showClickMarkerSwitch.isChecked = showClickMarker
 
         // Update text displays
         updateSearchIntervalText()
@@ -303,7 +310,8 @@ class SettingsActivity : AppCompatActivity() {
                     autoOpenEnabled = enableAutoOpen,
                     loggingEnabled = enableLogging,
                     autoClickEnabled = enableAutoClick,
-                    language = language
+                    language = language,
+                    showClickMarker = showClickMarker
                 )
                 newSettings.save(this@SettingsActivity)
 
@@ -335,6 +343,7 @@ class SettingsActivity : AppCompatActivity() {
         searchInterval = DEFAULT_SEARCH_INTERVAL
         enableVibration = true
         enableAutoOpen = false
+        showClickMarker = false
 
         updateUI()
 
