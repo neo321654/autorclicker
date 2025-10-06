@@ -262,6 +262,25 @@ class SettingsActivity : AppCompatActivity() {
         binding.searchIntervalText.text = getString(R.string.settings_search_interval_label, seconds)
     }
 
+    private fun updateLanguageText() {
+        val currentLanguageIndex = languageCodes.indexOf(language)
+        val languageName = if (currentLanguageIndex != -1) languages[currentLanguageIndex] else languageCodes[0]
+        binding.languageEditText.setText(languageName)
+    }
+
+    private fun updateMatchThresholdText() {
+        val percentage = (matchThreshold * 100).toInt()
+        binding.matchThresholdText.text = getString(R.string.settings_match_threshold_label, percentage)
+    }
+
+    private fun updateTemplateRadiusText() {
+        binding.templateRadiusText.text = getString(R.string.settings_template_radius_label, templateRadius)
+    }
+
+    private fun updateMaxResultsText() {
+        binding.maxResultsText.text = getString(R.string.settings_max_results_label, maxResults)
+    }
+
     private fun saveSettings() {
         lifecycleScope.launch {
             try {
