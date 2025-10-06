@@ -168,7 +168,7 @@ class CoordinateFinderService : Service(), ScreenshotAccessibilityService.Servic
             appSettings = AppSettings.load(this)
 
             // Register as a listener for screenshot service connection events
-            ScreenshotAccessibilityService.getInstance()?.addConnectionListener(this)
+            ScreenshotAccessibilityService.addConnectionListener(this)
 
             // Start robustness monitoring
             robustnessManager.startMonitoring()
@@ -726,7 +726,7 @@ class CoordinateFinderService : Service(), ScreenshotAccessibilityService.Servic
         robustnessManager.stopMonitoring()
 
         // Unregister listener
-        ScreenshotAccessibilityService.getInstance()?.removeConnectionListener(this)
+        ScreenshotAccessibilityService.removeConnectionListener(this)
 
         // Ensure notification is removed
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

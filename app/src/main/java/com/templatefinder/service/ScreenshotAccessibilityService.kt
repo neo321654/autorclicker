@@ -35,16 +35,22 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         
         @Volatile
         private var instance: ScreenshotAccessibilityService? = null
-        
-        /**
-         * Get the current instance of the service if it's running
-         */
+        private val connectionListeners = ConcurrentLinkedQueue<ServiceConnectionListener>()
+
         fun getInstance(): ScreenshotAccessibilityService? = instance
-        
-        /**
-         * Check if the service is currently running
-         */
+
         fun isServiceRunning(): Boolean = instance != null
+
+        fun addConnectionListener(listener: ServiceConnectionListener) {
+            if (isServiceRunning() && instance != null) {
+                listener.onServiceConnected()
+            }
+            connectionListeners.add(listener)
+        }
+
+        fun removeConnectionListener(listener: ServiceConnectionListener) {
+            connectionListeners.remove(listener)
+        }
     }
 
     // Queue for managing screenshot requests
@@ -52,9 +58,6 @@ class ScreenshotAccessibilityService : AccessibilityService() {
     private val isProcessingScreenshot = AtomicBoolean(false)
     private val lastScreenshotTime = AtomicLong(0)
     private val mainHandler = Handler(Looper.getMainLooper())
-    
-    // Service lifecycle listeners
-    private val connectionListeners = mutableSetOf<ServiceConnectionListener>()
     
     /**
      * Interface for service connection events
@@ -108,7 +111,7 @@ class ScreenshotAccessibilityService : AccessibilityService() {
             Log.d(TAG, "Service configured successfully")
             
             // Notify listeners
-            notifyConnectionListeners(true)
+            connectionListeners.forEach { it.onServiceConnected() }
             
         } catch (e: Exception) {
             Log.e(TAG, "Error configuring accessibility service", e)
@@ -124,10 +127,7 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         clearPendingRequestsWithError("Service is being destroyed")
         
         // Notify listeners
-        notifyConnectionListeners(false)
-        
-        // Clear listeners
-        connectionListeners.clear()
+        connectionListeners.forEach { it.onServiceDisconnected() }
         
         instance = null
         

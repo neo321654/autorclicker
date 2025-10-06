@@ -759,19 +759,20 @@ class MainActivity : AppCompatActivity() {
     private fun checkOptimizationRecommendations() {
         try {
             val app = application as TemplateFinderApplication
-            val recommendations = app.getAppOptimizationManager().getOptimizationRecommendations()
-            
-            // Show high priority recommendations
-            val highPriorityRecommendations = recommendations.filter { 
-                it.priority == AppOptimizationManager.RecommendationPriority.HIGH ||
-                it.priority == AppOptimizationManager.RecommendationPriority.CRITICAL
+            val batteryOptimizer = app.getBatteryOptimizer()
+            if (batteryOptimizer.isPowerSaveMode()) {
+                app.getAppOptimizationManager().showBatteryOptimizationDialog(this)
+            } else {
+                val recommendations = app.getAppOptimizationManager().getOptimizationRecommendations()
+                val highPriorityRecommendations = recommendations.filter { 
+                    it.priority == AppOptimizationManager.RecommendationPriority.HIGH ||
+                    it.priority == AppOptimizationManager.RecommendationPriority.CRITICAL
+                }
+                if (highPriorityRecommendations.isNotEmpty()) {
+                    val recommendation = highPriorityRecommendations.first()
+                    showOptimizationRecommendation(recommendation)
+                }
             }
-            
-            if (highPriorityRecommendations.isNotEmpty()) {
-                val recommendation = highPriorityRecommendations.first()
-                showOptimizationRecommendation(recommendation)
-            }
-            
         } catch (e: Exception) {
             Log.e(TAG, "Error checking optimization recommendations", e)
         }
