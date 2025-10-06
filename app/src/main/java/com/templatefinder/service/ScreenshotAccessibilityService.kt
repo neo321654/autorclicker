@@ -1,6 +1,7 @@
 package com.templatefinder.service
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Intent
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
 // FLAG_TAKE_SCREENSHOT is available from API 30+
@@ -47,6 +48,15 @@ class ScreenshotAccessibilityService : AccessibilityService() {
     private val lastScreenshotTime = AtomicLong(0)
     private val mainHandler = Handler(Looper.getMainLooper())
     
+    /**
+     * Data class for screenshot requests
+     */
+    private data class ScreenshotRequest(
+        val callback: ScreenshotCallback,
+        val timestamp: Long = System.currentTimeMillis(),
+        val id: String = "screenshot_${System.nanoTime()}"
+    )
+
     /**
      * Interface for screenshot callbacks
      */
@@ -119,37 +129,6 @@ class ScreenshotAccessibilityService : AccessibilityService() {
 
     override fun onInterrupt() {
         Log.w(TAG, "ScreenshotAccessibilityService interrupted")
-    }
-
-    /**
-     * Add a service connection listener
-     */
-    fun addConnectionListener(listener: ServiceConnectionListener) {
-        connectionListeners.add(listener)
-    }
-
-    /**
-     * Remove a service connection listener
-     */
-    fun removeConnectionListener(listener: ServiceConnectionListener) {
-        connectionListeners.remove(listener)
-    }
-
-    /**
-     * Notify connection listeners
-     */
-    private fun notifyConnectionListeners(connected: Boolean) {
-        connectionListeners.forEach { listener ->
-            try {
-                if (connected) {
-                    listener.onServiceConnected()
-                } else {
-                    listener.onServiceDisconnected()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error notifying connection listener", e)
-            }
-        }
     }
 
     /**
