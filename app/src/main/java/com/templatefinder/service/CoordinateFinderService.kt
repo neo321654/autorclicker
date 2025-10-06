@@ -567,10 +567,6 @@ class CoordinateFinderService : Service(), ScreenshotAccessibilityService.Servic
                             Log.d(TAG, "[CLICK DEBUG] Original Coords: (${it.x}, ${it.y})")
                             Log.d(TAG, "[CLICK DEBUG] Final Click Coords: (${clickX}, ${clickY})")
 
-                            // Show a visual marker for debugging if enabled
-                            if (appSettings?.showClickMarker == true) {
-                                autoOpenManager.showClickMarker(clickX, clickY)
-                            }
                             accessibilityService.performClick(clickX, clickY)
                         } else {
                             Log.w(TAG, "Accessibility service not available for auto-click.")
