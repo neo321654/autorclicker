@@ -61,23 +61,25 @@ class NotificationManager(private val context: Context) {
             val resultsChannelVibrate = NotificationChannel(
                 CHANNEL_RESULTS_VIBRATE,
                 "Coordinate Results (Vibration)",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = "Notifications for found coordinates with vibration"
                 enableVibration(true)
                 vibrationPattern = VIBRATION_PATTERN_RESULT
                 setShowBadge(true)
+                setSound(null, null)
             }
 
             // Results channel without vibration
             val resultsChannelNoVibrate = NotificationChannel(
                 CHANNEL_RESULTS_NO_VIBRATE,
                 "Coordinate Results (Silent)",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = "Notifications for found coordinates without vibration"
                 enableVibration(false)
                 setShowBadge(true)
+                setSound(null, null)
             }
             
             // Alerts channel
