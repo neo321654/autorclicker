@@ -329,6 +329,8 @@ class BatteryOptimizer(private val context: Context) : DefaultLifecycleObserver 
         )
     }
 
+    fun isPowerSaveMode(): Boolean = isPowerSaveMode
+
     // Lifecycle callbacks
     override fun onStart(owner: LifecycleOwner) {
         startMonitoring()

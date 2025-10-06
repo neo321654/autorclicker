@@ -1,5 +1,8 @@
 <resources>
-    <string name="app_name">EasyClicker</string>
+    <string name="app_name">Template Finder</string>
+    <string name="battery_optimization_required_title">Battery Optimization Required</string>
+    <string name="battery_optimization_required_message">The app runs in the background, but the system may stop it to save power. To ensure stable operation, please disable battery optimization for this app in the battery settings.</string>
+    <string name="open_settings">Open Settings</string>
     <string name="accessibility_service_description">Allows the app to take screenshots for template matching</string>
     <string name="create_template">Create Template</string>
     <string name="start_search">Start Search</string>

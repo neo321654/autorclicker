@@ -4,6 +4,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.templatefinder.model.AppSettings
 import java.util.concurrent.atomic.AtomicBoolean
+import android.app.Activity
+import android.content.Intent
+import android.provider.Settings
+import android.util.Log
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.templatefinder.R
+import android.content.ComponentName
+import android.content.ActivityNotFoundException
 
 /**
  * Central manager for all app optimizations and polish features
@@ -51,6 +59,35 @@ class AppOptimizationManager(private val context: Context) {
 
     init {
         loadSettings()
+    }
+
+    fun showBatteryOptimizationDialog(activity: Activity) {
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.battery_optimization_required_title)
+            .setMessage(R.string.battery_optimization_required_message)
+            .setPositiveButton(R.string.open_settings) { _, _ ->
+                openBatteryOptimizationSettings(activity)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun openBatteryOptimizationSettings(activity: Activity) {
+        try {
+            val intent = Intent()
+            intent.component = ComponentName("com.miui.powerkeeper", "com.miui.powerkeeper.ui.HiddenAppsConfigActivity")
+            intent.putExtra("package_name", context.packageName)
+            intent.putExtra("package_label", context.getString(R.string.app_name))
+            activity.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Log.w(TAG, "MIUI power settings not found, falling back to standard settings.")
+            try {
+                val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                activity.startActivity(intent)
+            } catch (e2: ActivityNotFoundException) {
+                Log.e(TAG, "Could not open any battery optimization settings.", e2)
+            }
+        }
     }
 
     /**
@@ -316,7 +353,7 @@ class AppOptimizationManager(private val context: Context) {
      * Recommendation types
      */
     enum class RecommendationType {
-        BATTERY, PERFORMANCE, ACCESSIBILITY, ANALYTICS
+        BATTERY, PERFORMANCE, ACCESSIBILITY, ANALYTICS, SYSTEM_HEALTH
     }
 
     /**
