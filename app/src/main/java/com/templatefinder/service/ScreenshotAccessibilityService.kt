@@ -35,26 +35,10 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         
         @Volatile
         private var instance: ScreenshotAccessibilityService? = null
-        private val connectionListeners = ConcurrentLinkedQueue<ServiceConnectionListener>()
 
         fun getInstance(): ScreenshotAccessibilityService? = instance
 
         fun isServiceRunning(): Boolean = instance != null
-
-        fun addConnectionListener(listener: ServiceConnectionListener) {
-            if (isServiceRunning() && instance != null) {
-                listener.onServiceConnected()
-            }
-            connectionListeners.add(listener)
-        }
-
-        fun removeConnectionListener(listener: ServiceConnectionListener) {
-            connectionListeners.remove(listener)
-        }
-
-        fun removeConnectionListeners(predicate: (ServiceConnectionListener) -> Boolean) {
-            connectionListeners.removeAll(predicate)
-        }
     }
 
     // Queue for managing screenshot requests
@@ -63,23 +47,6 @@ class ScreenshotAccessibilityService : AccessibilityService() {
     private val lastScreenshotTime = AtomicLong(0)
     private val mainHandler = Handler(Looper.getMainLooper())
     
-    /**
-     * Interface for service connection events
-     */
-    interface ServiceConnectionListener {
-        fun onServiceConnected()
-        fun onServiceDisconnected()
-    }
-
-    /**
-     * Data class for screenshot requests
-     */
-    private data class ScreenshotRequest(
-        val callback: ScreenshotCallback,
-        val timestamp: Long = System.currentTimeMillis(),
-        val id: String = "screenshot_${System.nanoTime()}"
-    )
-
     /**
      * Interface for screenshot callbacks
      */
@@ -94,6 +61,10 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         
         Log.d(TAG, "ScreenshotAccessibilityService connected")
         
+        // Send broadcast
+        val intent = Intent("com.easyclicker.ACCESSIBILITY_SERVICE_CONNECTED")
+        sendBroadcast(intent)
+
         try {
             // Configure service info
             val info = serviceInfo ?: AccessibilityServiceInfo()
@@ -114,9 +85,6 @@ class ScreenshotAccessibilityService : AccessibilityService() {
             
             Log.d(TAG, "Service configured successfully")
             
-            // Notify listeners
-            connectionListeners.forEach { it.onServiceConnected() }
-            
         } catch (e: Exception) {
             Log.e(TAG, "Error configuring accessibility service", e)
         }
@@ -127,11 +95,12 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         
         Log.d(TAG, "ScreenshotAccessibilityService destroying...")
         
+        // Send broadcast
+        val intent = Intent("com.easyclicker.ACCESSIBILITY_SERVICE_DISCONNECTED")
+        sendBroadcast(intent)
+
         // Clear pending requests and notify with errors
         clearPendingRequestsWithError("Service is being destroyed")
-        
-        // Notify listeners
-        connectionListeners.forEach { it.onServiceDisconnected() }
         
         instance = null
         
