@@ -393,6 +393,9 @@ class CoordinateFinderService : Service() {
             robustnessManager.unregisterBitmap(screenshot)
             screenshot.recycle()
             
+        } catch (e: CancellationException) {
+            Log.d(TAG, "Single search cancelled")
+            throw e // Re-throw to be handled by the outer loop
         } catch (e: Exception) {
             errorHandler.handleError(
                 category = ErrorHandler.CATEGORY_MATCHING,
@@ -642,9 +645,8 @@ class CoordinateFinderService : Service() {
     private fun notifyError(error: String) {
         Log.e(TAG, error)
         notifyCallbacks { it.onSearchError(error) }
-        updateNotification("Error: $error")
         
-        // Show error notification
+        // Show a dismissible alert notification for the error
         notificationManager.showAlertNotification("Search Error", error, isError = true)
     }
 
