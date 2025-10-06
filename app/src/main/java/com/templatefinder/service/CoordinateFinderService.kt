@@ -385,7 +385,7 @@ class CoordinateFinderService : Service() {
             }
             
             // Get screenshot from accessibility service with retry logic
-            val screenshot = captureScreenshotWithRetry(maxRetries = 5)
+            val screenshot = captureScreenshotWithRetry(maxRetries = 30)
             
             // Preprocess screenshot if needed
             val processedScreenshot = preprocessScreenshotForMatching(screenshot)
