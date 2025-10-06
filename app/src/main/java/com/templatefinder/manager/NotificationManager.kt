@@ -178,6 +178,7 @@ class NotificationManager(private val context: Context) {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setSilent(true) // Make the notification silent
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .addAction(createViewAction())
             .addAction(createShareAction(result))
