@@ -3,7 +3,6 @@ package com.templatefinder.service
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
-import android.accessibilityservice.AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
 // FLAG_TAKE_SCREENSHOT is available from API 30+
 import android.graphics.Bitmap
 import android.graphics.Path
@@ -102,7 +101,7 @@ class ScreenshotAccessibilityService : AccessibilityService() {
             info.flags = newFlags
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                info.capabilities = info.capabilities or CAPABILITY_CAN_DISPATCH_GESTURES
+                info.capabilities = info.capabilities or 8 // AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
             }
 
             info.notificationTimeout = 100
