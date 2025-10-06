@@ -223,10 +223,17 @@ class SettingsActivity : AppCompatActivity() {
             try {
                 // Load settings from AppSettings
                 searchInterval = appSettings.searchInterval
+                matchThreshold = appSettings.matchThreshold
+                templateRadius = appSettings.templateRadius
+                maxResults = appSettings.maxResults
+                enableNotifications = appSettings.notificationsEnabled
                 enableVibration = appSettings.vibrationEnabled
                 enableAutoOpen = appSettings.autoOpenEnabled
+                enableLogging = appSettings.loggingEnabled
+                enableAutoClick = appSettings.autoClickEnabled
                 clickOffsetX = appSettings.clickOffsetX
                 clickOffsetY = appSettings.clickOffsetY
+                language = appSettings.language
                 showClickMarker = appSettings.showClickMarker
 
                 // Update UI
@@ -241,12 +248,21 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
+        // Update Language
+        updateLanguageText()
+
         // Update SeekBars
         binding.searchIntervalSeekBar.progress = (searchInterval / 100).toInt()
+        binding.matchThresholdSeekBar.progress = (matchThreshold * 100).toInt()
+        binding.templateRadiusSeekBar.progress = templateRadius
+        binding.maxResultsSeekBar.progress = maxResults
 
         // Update Switches
+        binding.enableNotificationsSwitch.isChecked = enableNotifications
         binding.enableVibrationSwitch.isChecked = enableVibration
         binding.enableAutoOpenSwitch.isChecked = enableAutoOpen
+        binding.enableLoggingSwitch.isChecked = enableLogging
+        binding.enableAutoClickSwitch.isChecked = enableAutoClick
         binding.showClickMarkerSwitch.isChecked = showClickMarker
 
         // Update Click Offsets
@@ -255,6 +271,9 @@ class SettingsActivity : AppCompatActivity() {
 
         // Update text displays
         updateSearchIntervalText()
+        updateMatchThresholdText()
+        updateTemplateRadiusText()
+        updateMaxResultsText()
     }
 
     private fun updateSearchIntervalText() {
