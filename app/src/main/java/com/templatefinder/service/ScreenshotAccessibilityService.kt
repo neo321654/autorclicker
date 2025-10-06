@@ -88,6 +88,7 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         Log.d(TAG, "ScreenshotAccessibilityService connected")
         
         try {
+            // Configure service info
             val info = serviceInfo ?: AccessibilityServiceInfo()
             info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK
             info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
@@ -99,10 +100,6 @@ class ScreenshotAccessibilityService : AccessibilityService() {
             }
             newFlags = newFlags or FLAG_RETRIEVE_INTERACTIVE_WINDOWS
             info.flags = newFlags
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                info.capabilities = info.capabilities or 8 // AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
-            }
 
             info.notificationTimeout = 100
             
@@ -405,36 +402,53 @@ class ScreenshotAccessibilityService : AccessibilityService() {
      * @param y The y-coordinate of the click.
      */
     fun performClick(x: Int, y: Int) {
-        Log.i(TAG, "NODE CLICK: Attempting click via AccessibilityNodeInfo at ($x, $y)")
-        val root = rootInActiveWindow ?: run {
-            Log.e(TAG, "NODE CLICK: Cannot perform action, rootInActiveWindow is null.")
-            return
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Log.i(TAG, "GESTURE CLICK: Attempting realistic click via GestureDescription at ($x, $y)")
+            
+            val path = Path()
+            path.moveTo(x.toFloat(), y.toFloat())
+            
+            // Add a tiny, random movement
+            val random = java.util.Random()
+            val moveX = x + random.nextInt(3) - 1 // -1, 0, or 1
+            val moveY = y + random.nextInt(3) - 1 // -1, 0, or 1
+            path.lineTo(moveX.toFloat(), moveY.toFloat())
 
-        try {
-            val node = findSmallestNodeAt(root, x, y)
-            if (node == null) {
-                Log.w(TAG, "NODE CLICK: No node found at coordinates ($x, $y).")
+            val gestureBuilder = GestureDescription.Builder()
+            // The gesture will have a duration of 100ms
+            gestureBuilder.addStroke(GestureDescription.StrokeDescription(path, 0, 100))
+            
+            dispatchGesture(gestureBuilder.build(), null, null)
+        } else {
+            Log.i(TAG, "NODE CLICK: Attempting click via AccessibilityNodeInfo at ($x, $y)")
+            val root = rootInActiveWindow ?: run {
+                Log.e(TAG, "NODE CLICK: Cannot perform action, rootInActiveWindow is null.")
                 return
             }
 
-            var clickableNode: AccessibilityNodeInfo? = node
-            while (clickableNode != null && !clickableNode.isClickable) {
-                clickableNode = clickableNode.parent
-            }
+            try {
+                val node = findSmallestNodeAt(root, x, y)
+                if (node == null) {
+                    Log.w(TAG, "NODE CLICK: No node found at coordinates ($x, $y).")
+                    return
+                }
 
-            if (clickableNode != null) {
-                Log.i(TAG, "NODE CLICK: Found clickable node: ${clickableNode.className}. Performing ACTION_CLICK.")
-                val success = clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                Log.i(TAG, "NODE CLICK: performAction(ACTION_CLICK) result: $success")
-            } else {
-                Log.w(TAG, "NODE CLICK: No clickable node found at or above coordinates.")
-            }
+                var clickableNode: AccessibilityNodeInfo? = node
+                while (clickableNode != null && !clickableNode.isClickable) {
+                    clickableNode = clickableNode.parent
+                }
 
-        } finally {
-            // As per documentation, the root node must be recycled.
-            // Child nodes obtained during traversal are managed by the system or their parent.
-            root.recycle()
+                if (clickableNode != null) {
+                    Log.i(TAG, "NODE CLICK: Found clickable node: ${clickableNode.className}. Performing ACTION_CLICK.")
+                    val success = clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    Log.i(TAG, "NODE CLICK: performAction(ACTION_CLICK) result: $success")
+                } else {
+                    Log.w(TAG, "NODE CLICK: No clickable node found at or above coordinates.")
+                }
+
+            } finally {
+                root.recycle()
+            }
         }
     }
 
