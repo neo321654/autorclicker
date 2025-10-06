@@ -347,16 +347,16 @@ class CoordinateFinderService : Service() {
             } catch (e: Exception) {
                 errorHandler.handleError(
                     category = ErrorHandler.CATEGORY_SERVICE,
-                    severity = ErrorHandler.SEVERITY_MEDIUM,
-                    message = "Error in search loop",
+                    severity = ErrorHandler.SEVERITY_CRITICAL,
+                    message = "Error in search loop, stopping search.",
                     throwable = e,
                     context = "Search loop iteration ${searchCount.get()}",
-                    recoverable = true
+                    recoverable = false
                 )
-                notifyError("Search error: ${e.message}")
-                
-                // Wait before retrying
-                delay(searchInterval * 2)
+                mainHandler.post {
+                    notifyError("Search error: ${e.message}")
+                    stopSearch()
+                }
             }
         }
     }
@@ -407,7 +407,7 @@ class CoordinateFinderService : Service() {
                 context = "Search attempt ${searchCount.get()}",
                 recoverable = true
             )
-            notifyError("Search error: ${e.message}")
+            throw e
         }
     }
 
