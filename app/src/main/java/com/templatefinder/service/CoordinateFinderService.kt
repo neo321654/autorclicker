@@ -561,14 +561,10 @@ class CoordinateFinderService : Service(), ScreenshotAccessibilityService.Servic
                     result.coordinates?.let {
                         val accessibilityService = ScreenshotAccessibilityService.getInstance()
                         if (accessibilityService != null) {
-                            // Apply offsets from settings
-                            val offsetX = appSettings?.clickOffsetX ?: 0
-                            val offsetY = appSettings?.clickOffsetY ?: 0
-                            val clickX = it.x + offsetX
-                            val clickY = it.y + offsetY
+                            val clickX = it.x
+                            val clickY = it.y
 
                             Log.d(TAG, "[CLICK DEBUG] Original Coords: (${it.x}, ${it.y})")
-                            Log.d(TAG, "[CLICK DEBUG] Settings Offsets: (x=${offsetX}, y=${offsetY})")
                             Log.d(TAG, "[CLICK DEBUG] Final Click Coords: (${clickX}, ${clickY})")
 
                             // Show a visual marker for debugging if enabled

@@ -29,7 +29,6 @@ class SettingsActivity : AppCompatActivity() {
         private const val DEFAULT_MATCH_THRESHOLD = 0.8f
         private const val DEFAULT_TEMPLATE_RADIUS = 50
         private const val DEFAULT_MAX_RESULTS = 10
-        private const val DEFAULT_CLICK_OFFSET = 0
         private const val DEFAULT_LANGUAGE = "ru"
         
         // Ranges
@@ -61,8 +60,6 @@ class SettingsActivity : AppCompatActivity() {
     private var enableLogging: Boolean = false
     private var enableAutoClick: Boolean = false
     private var showClickMarker: Boolean = false
-    private var clickOffsetX: Int = DEFAULT_CLICK_OFFSET
-    private var clickOffsetY: Int = DEFAULT_CLICK_OFFSET
     private var language: String = DEFAULT_LANGUAGE
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -231,8 +228,6 @@ class SettingsActivity : AppCompatActivity() {
                 enableAutoOpen = appSettings.autoOpenEnabled
                 enableLogging = appSettings.loggingEnabled
                 enableAutoClick = appSettings.autoClickEnabled
-                clickOffsetX = appSettings.clickOffsetX
-                clickOffsetY = appSettings.clickOffsetY
                 language = appSettings.language
                 showClickMarker = appSettings.showClickMarker
 
@@ -264,10 +259,6 @@ class SettingsActivity : AppCompatActivity() {
         binding.enableLoggingSwitch.isChecked = enableLogging
         binding.enableAutoClickSwitch.isChecked = enableAutoClick
         binding.showClickMarkerSwitch.isChecked = showClickMarker
-
-        // Update Click Offsets
-        binding.clickOffsetXEditText.setText(clickOffsetX.toString())
-        binding.clickOffsetYEditText.setText(clickOffsetY.toString())
 
         // Update text displays
         updateSearchIntervalText()
@@ -308,10 +299,6 @@ class SettingsActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // Read values from EditTexts for offsets
-                val offsetX = binding.clickOffsetXEditText.text.toString().toIntOrNull() ?: 0
-                val offsetY = binding.clickOffsetYEditText.text.toString().toIntOrNull() ?: 0
-
                 // Save settings using AppSettings
                 val newSettings = AppSettings(
                     searchInterval = searchInterval,
@@ -323,8 +310,6 @@ class SettingsActivity : AppCompatActivity() {
                     autoOpenEnabled = enableAutoOpen,
                     loggingEnabled = enableLogging,
                     autoClickEnabled = enableAutoClick,
-                    clickOffsetX = offsetX,
-                    clickOffsetY = offsetY,
                     language = language,
                     showClickMarker = showClickMarker
                 )
@@ -358,8 +343,6 @@ class SettingsActivity : AppCompatActivity() {
         searchInterval = DEFAULT_SEARCH_INTERVAL
         enableVibration = true
         enableAutoOpen = false
-        clickOffsetX = DEFAULT_CLICK_OFFSET
-        clickOffsetY = DEFAULT_CLICK_OFFSET
         showClickMarker = false
 
         updateUI()

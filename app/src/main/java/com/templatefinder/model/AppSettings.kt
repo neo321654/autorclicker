@@ -13,8 +13,6 @@ data class AppSettings(
     val autoOpenEnabled: Boolean,
     val loggingEnabled: Boolean,
     val autoClickEnabled: Boolean,
-    val clickOffsetX: Int,
-    val clickOffsetY: Int,
     val language: String,
     val showClickMarker: Boolean // Added this field
 ) {
@@ -30,8 +28,6 @@ data class AppSettings(
         private const val KEY_AUTO_OPEN_ENABLED = "auto_open_enabled"
         private const val KEY_LOGGING_ENABLED = "logging_enabled"
         private const val KEY_AUTO_CLICK_ENABLED = "auto_click_enabled"
-        private const val KEY_CLICK_OFFSET_X = "click_offset_x"
-        private const val KEY_CLICK_OFFSET_Y = "click_offset_y"
         private const val KEY_LANGUAGE = "language"
         private const val KEY_SHOW_CLICK_MARKER = "show_click_marker"
 
@@ -47,8 +43,6 @@ data class AppSettings(
                 autoOpenEnabled = prefs.getBoolean(KEY_AUTO_OPEN_ENABLED, false),
                 loggingEnabled = prefs.getBoolean(KEY_LOGGING_ENABLED, false),
                 autoClickEnabled = prefs.getBoolean(KEY_AUTO_CLICK_ENABLED, false),
-                clickOffsetX = prefs.getInt(KEY_CLICK_OFFSET_X, 0),
-                clickOffsetY = prefs.getInt(KEY_CLICK_OFFSET_Y, 0),
                 language = prefs.getString(KEY_LANGUAGE, "en") ?: "en",
                 showClickMarker = prefs.getBoolean(KEY_SHOW_CLICK_MARKER, false)
             )
@@ -67,8 +61,6 @@ data class AppSettings(
             putBoolean(KEY_AUTO_OPEN_ENABLED, autoOpenEnabled)
             putBoolean(KEY_LOGGING_ENABLED, loggingEnabled)
             putBoolean(KEY_AUTO_CLICK_ENABLED, autoClickEnabled)
-            putInt(KEY_CLICK_OFFSET_X, clickOffsetX)
-            putInt(KEY_CLICK_OFFSET_Y, clickOffsetY)
             putString(KEY_LANGUAGE, language)
             putBoolean(KEY_SHOW_CLICK_MARKER, showClickMarker)
             apply()
