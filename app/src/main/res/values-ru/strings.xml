@@ -71,4 +71,7 @@
     <string name="template_created_from_gallery">Шаблон из галереи создан!</string>
     <string name="failed_to_save_template">Не удалось сохранить шаблон</string>
     <string name="error_creating_template">Ошибка при создании шаблона</string>
+    <string name="cd_permission_status">Иконка статуса разрешений</string>
+    <string name="cd_template_status">Иконка статуса шаблона</string>
+    <string name="cd_current_template_thumbnail">Эскиз текущего шаблона</string>
 </resources>

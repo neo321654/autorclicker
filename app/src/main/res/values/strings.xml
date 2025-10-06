@@ -144,8 +144,6 @@
     <string name="permission_missing_message">Служба доступности необходима для функционирования приложения. Пожалуйста, включите ее, чтобы продолжить.</string>
     <string name="accessibility_service_required_message">Этому приложению требуется разрешение службы доступности для создания снимков экрана. Пожалуйста, включите его на следующем экране.</string>
     <string name="cd_permission_status">Статус разрешений</string>
-    <string name="cd_template_status">Статус шаблона</string>
-    <string name="test_template_title">Тестирование Распознавания</string>
-    <string name="image_selected">Изображение выбрано</string>
-    <string name="template_selected_format">Шаблон: %1$s</string>
+    <string name="cd_template_status">Template status icon</string>
+    <string name="cd_current_template_thumbnail">Current template thumbnail</string>
 </resources>
