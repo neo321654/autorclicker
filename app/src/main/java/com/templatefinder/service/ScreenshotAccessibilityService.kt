@@ -1,6 +1,7 @@
 package com.templatefinder.service
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Intent
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
 // FLAG_TAKE_SCREENSHOT is available from API 30+
@@ -27,6 +28,16 @@ import java.util.concurrent.atomic.AtomicLong
  */
 class ScreenshotAccessibilityService : AccessibilityService() {
 
+    inner class LocalBinder : android.os.Binder() {
+        fun getService(): ScreenshotAccessibilityService = this@ScreenshotAccessibilityService
+    }
+
+    private val binder = LocalBinder()
+
+    override fun onBind(intent: Intent): android.os.IBinder {
+        return binder
+    }
+
     companion object {
         private const val TAG = "ScreenshotAccessibilityService"
         private const val MAX_QUEUE_SIZE = 10
@@ -35,26 +46,10 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         
         @Volatile
         private var instance: ScreenshotAccessibilityService? = null
-        private val connectionListeners = ConcurrentLinkedQueue<ServiceConnectionListener>()
 
         fun getInstance(): ScreenshotAccessibilityService? = instance
 
         fun isServiceRunning(): Boolean = instance != null
-
-        fun addConnectionListener(listener: ServiceConnectionListener) {
-            if (isServiceRunning() && instance != null) {
-                listener.onServiceConnected()
-            }
-            connectionListeners.add(listener)
-        }
-
-        fun removeConnectionListener(listener: ServiceConnectionListener) {
-            connectionListeners.remove(listener)
-        }
-
-        fun removeConnectionListeners(predicate: (ServiceConnectionListener) -> Boolean) {
-            connectionListeners.removeAll(predicate)
-        }
     }
 
     // Queue for managing screenshot requests
