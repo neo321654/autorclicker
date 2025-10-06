@@ -549,7 +549,10 @@ class CoordinateFinderService : Service() {
                             val clickX = it.x + offsetX
                             val clickY = it.y + offsetY
 
-                            Log.d(TAG, "Auto-clicking at (${it.x}, ${it.y}) with offset ($offsetX, $offsetY) -> ($clickX, $clickY)")
+                            Log.d(TAG, "[CLICK DEBUG] Original Coords: (${it.x}, ${it.y})")
+                            Log.d(TAG, "[CLICK DEBUG] Settings Offsets: (x=${offsetX}, y=${offsetY})")
+                            Log.d(TAG, "[CLICK DEBUG] Final Click Coords: (${clickX}, ${clickY})")
+
                             // Show a visual marker for debugging if enabled
                             if (appSettings?.showClickMarker == true) {
                                 autoOpenManager.showClickMarker(clickX, clickY)
