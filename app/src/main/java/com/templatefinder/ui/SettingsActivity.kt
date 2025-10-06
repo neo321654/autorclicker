@@ -60,6 +60,7 @@ class SettingsActivity : AppCompatActivity() {
     private var enableAutoOpen: Boolean = false
     private var enableLogging: Boolean = false
     private var enableAutoClick: Boolean = false
+    private var showClickMarker: Boolean = false
     private var clickOffsetX: Int = DEFAULT_CLICK_OFFSET
     private var clickOffsetY: Int = DEFAULT_CLICK_OFFSET
     private var language: String = DEFAULT_LANGUAGE
@@ -187,6 +188,10 @@ class SettingsActivity : AppCompatActivity() {
             enableAutoClick = isChecked
         }
 
+        binding.showClickMarkerSwitch.setOnCheckedChangeListener { _, isChecked ->
+            showClickMarker = isChecked
+        }
+
         // Action Buttons
         binding.saveButton.setOnClickListener {
             saveSettings()
@@ -218,17 +223,11 @@ class SettingsActivity : AppCompatActivity() {
             try {
                 // Load settings from AppSettings
                 searchInterval = appSettings.searchInterval
-                matchThreshold = appSettings.matchThreshold
-                templateRadius = appSettings.templateRadius
-                maxResults = appSettings.maxResults
-                enableNotifications = appSettings.notificationsEnabled
                 enableVibration = appSettings.vibrationEnabled
                 enableAutoOpen = appSettings.autoOpenEnabled
-                enableLogging = appSettings.loggingEnabled
-                enableAutoClick = appSettings.autoClickEnabled
                 clickOffsetX = appSettings.clickOffsetX
                 clickOffsetY = appSettings.clickOffsetY
-                language = appSettings.language
+                showClickMarker = appSettings.showClickMarker
 
                 // Update UI
                 updateUI()
@@ -242,21 +241,13 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
-        // Update Language
-        updateLanguageText()
-
         // Update SeekBars
         binding.searchIntervalSeekBar.progress = (searchInterval / 100).toInt()
-        binding.matchThresholdSeekBar.progress = (matchThreshold * 100).toInt()
-        binding.templateRadiusSeekBar.progress = templateRadius
-        binding.maxResultsSeekBar.progress = maxResults
 
         // Update Switches
-        binding.enableNotificationsSwitch.isChecked = enableNotifications
         binding.enableVibrationSwitch.isChecked = enableVibration
         binding.enableAutoOpenSwitch.isChecked = enableAutoOpen
-        binding.enableLoggingSwitch.isChecked = enableLogging
-        binding.enableAutoClickSwitch.isChecked = enableAutoClick
+        binding.showClickMarkerSwitch.isChecked = showClickMarker
 
         // Update Click Offsets
         binding.clickOffsetXEditText.setText(clickOffsetX.toString())
@@ -264,33 +255,11 @@ class SettingsActivity : AppCompatActivity() {
 
         // Update text displays
         updateSearchIntervalText()
-        updateMatchThresholdText()
-        updateTemplateRadiusText()
-        updateMaxResultsText()
-    }
-
-    private fun updateLanguageText() {
-        val currentLanguageIndex = languageCodes.indexOf(language)
-        val languageName = if (currentLanguageIndex != -1) languages[currentLanguageIndex] else languageCodes[0]
-        binding.languageEditText.setText(languageName)
     }
 
     private fun updateSearchIntervalText() {
         val seconds = searchInterval / 1000.0
         binding.searchIntervalText.text = getString(R.string.settings_search_interval_label, seconds)
-    }
-
-    private fun updateMatchThresholdText() {
-        val percentage = (matchThreshold * 100).toInt()
-        binding.matchThresholdText.text = getString(R.string.settings_match_threshold_label, percentage)
-    }
-
-    private fun updateTemplateRadiusText() {
-        binding.templateRadiusText.text = getString(R.string.settings_template_radius_label, templateRadius)
-    }
-
-    private fun updateMaxResultsText() {
-        binding.maxResultsText.text = getString(R.string.settings_max_results_label, maxResults)
     }
 
     private fun saveSettings() {
@@ -305,34 +274,19 @@ class SettingsActivity : AppCompatActivity() {
                 val offsetX = binding.clickOffsetXEditText.text.toString().toIntOrNull() ?: 0
                 val offsetY = binding.clickOffsetYEditText.text.toString().toIntOrNull() ?: 0
 
-                val oldLanguage = appSettings.language
-
                 // Save settings using AppSettings
                 val newSettings = AppSettings(
                     searchInterval = searchInterval,
-                    matchThreshold = matchThreshold,
-                    templateRadius = templateRadius,
-                    isSearchActive = appSettings.isSearchActive,
-                    maxResults = maxResults,
-                    notificationsEnabled = enableNotifications,
                     vibrationEnabled = enableVibration,
                     autoOpenEnabled = enableAutoOpen,
-                    loggingEnabled = enableLogging,
-                    autoClickEnabled = enableAutoClick,
                     clickOffsetX = offsetX,
                     clickOffsetY = offsetY,
-                    language = language
+                    showClickMarker = showClickMarker
                 )
                 newSettings.save(this@SettingsActivity)
 
                 Log.d(TAG, "Settings saved successfully")
                 Toast.makeText(this@SettingsActivity, "Settings saved", Toast.LENGTH_SHORT).show()
-
-                // Apply the new locale if it changed
-                if (oldLanguage != language) {
-                    val appLocale = LocaleListCompat.forLanguageTags(language)
-                    AppCompatDelegate.setApplicationLocales(appLocale)
-                }
 
                 // Return to previous activity
                 setResult(RESULT_OK)
@@ -352,40 +306,16 @@ class SettingsActivity : AppCompatActivity() {
             return false
         }
 
-        // Validate match threshold
-        if (matchThreshold < MIN_MATCH_THRESHOLD || matchThreshold > MAX_MATCH_THRESHOLD) {
-            showError("Match threshold must be between ${(MIN_MATCH_THRESHOLD*100).toInt()}% and ${(MAX_MATCH_THRESHOLD*100).toInt()}%")
-            return false
-        }
-
-        // Validate template radius
-        if (templateRadius < MIN_TEMPLATE_RADIUS || templateRadius > MAX_TEMPLATE_RADIUS) {
-            showError("Template radius must be between ${MIN_TEMPLATE_RADIUS}px and ${MAX_TEMPLATE_RADIUS}px")
-            return false
-        }
-
-        // Validate max results
-        if (maxResults < MIN_MAX_RESULTS || maxResults > MAX_MAX_RESULTS) {
-            showError("Max results must be between $MIN_MAX_RESULTS and $MAX_MAX_RESULTS")
-            return false
-        }
-
         return true
     }
 
     private fun resetToDefaults() {
         searchInterval = DEFAULT_SEARCH_INTERVAL
-        matchThreshold = DEFAULT_MATCH_THRESHOLD
-        templateRadius = DEFAULT_TEMPLATE_RADIUS
-        maxResults = DEFAULT_MAX_RESULTS
-        enableNotifications = true
         enableVibration = true
         enableAutoOpen = false
-        enableLogging = false
-        enableAutoClick = false
         clickOffsetX = DEFAULT_CLICK_OFFSET
         clickOffsetY = DEFAULT_CLICK_OFFSET
-        language = DEFAULT_LANGUAGE
+        showClickMarker = false
 
         updateUI()
 
