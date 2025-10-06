@@ -424,7 +424,6 @@ class MainActivity : AppCompatActivity() {
         // Force Stop button
         binding.forceStopButton.setOnClickListener {
             Log.d(TAG, "Force stopping all services")
-            searchController.stopSearch() // Update controller state
             CoordinateFinderService.stopService(this) // Send stop command to service
             Toast.makeText(this, "Attempting to force stop service...", Toast.LENGTH_SHORT).show()
         }

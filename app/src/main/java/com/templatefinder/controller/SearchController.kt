@@ -216,21 +216,12 @@ class SearchController(private val context: Context) {
         try {
             updateState(SearchState.STOPPING)
             
-            val success = serviceCommunicationManager.stopSearch()
+            // Use the static intent-based method for robust stopping
+            CoordinateFinderService.stopService(context)
             
-            if (success) {
-                logger.info(TAG, "Search stop request sent successfully")
-                return SearchControlResult(true, "Search stopped")
-            } else {
-                val error = "Failed to stop search service"
-                errorHandler.handleError(
-                    category = ErrorHandler.CATEGORY_SERVICE,
-                    severity = ErrorHandler.SEVERITY_MEDIUM,
-                    message = error,
-                    context = "Stopping search"
-                )
-                return SearchControlResult(false, error)
-            }
+            // Since the intent is asynchronous, we assume success and let the callbacks handle the state change
+            logger.info(TAG, "Search stop request sent successfully")
+            return SearchControlResult(true, "Search stopped")
             
         } catch (e: Exception) {
             errorHandler.handleError(
