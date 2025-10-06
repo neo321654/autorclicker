@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.templatefinder.R
 import com.templatefinder.databinding.ActivityTemplateCreationBinding
 import com.templatefinder.manager.TemplateManager
+import com.templatefinder.model.AppSettings
 import com.templatefinder.model.Template
 import com.templatefinder.service.ScreenshotAccessibilityService
 import kotlin.math.max
@@ -30,17 +31,17 @@ class TemplateCreationActivity : AppCompatActivity() {
         private const val MIN_RADIUS = 20
         private const val MAX_RADIUS = 200
         private const val DEFAULT_RADIUS = 50
-        private const val DEFAULT_THRESHOLD = 0.8f
     }
 
     private lateinit var binding: ActivityTemplateCreationBinding
     private lateinit var templateManager: TemplateManager
+    private lateinit var appSettings: AppSettings
     
     // Template creation state
     private var currentScreenshot: Bitmap? = null
     private var selectedPoint: Point? = null
     private var currentRadius: Int = DEFAULT_RADIUS
-    private var currentThreshold: Float = DEFAULT_THRESHOLD
+    private var currentThreshold: Float = 0.8f
     
     // UI state
     private var isCapturingScreenshot = false
@@ -79,6 +80,8 @@ class TemplateCreationActivity : AppCompatActivity() {
         setContentView(binding.root)
         
         templateManager = TemplateManager(this)
+        appSettings = AppSettings.load(this)
+        currentThreshold = appSettings.matchThreshold
         
         setupUI()
         setupEventListeners()
@@ -98,7 +101,7 @@ class TemplateCreationActivity : AppCompatActivity() {
         binding.thresholdSeekBar.apply {
             min = 10
             max = 100
-            progress = (DEFAULT_THRESHOLD * 100).toInt()
+            progress = (currentThreshold * 100).toInt()
         }
         
         updateRadiusText()
