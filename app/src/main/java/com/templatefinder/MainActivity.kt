@@ -467,9 +467,17 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Checking template status: previous=$previousStatus, current=$hasTemplate")
         
         if (hasTemplate) {
-            val templateInfo = templateManager.getTemplateInfo()
-            Log.d(TAG, "Template found: ${templateInfo?.name}")
+            val template = templateManager.loadCurrentTemplate()
+            if (template != null) {
+                binding.currentTemplateImageView.setImageBitmap(template.templateBitmap)
+                binding.currentTemplateImageView.visibility = View.VISIBLE
+                Log.d(TAG, "Template found and displayed: ${template.name}")
+            } else {
+                binding.currentTemplateImageView.visibility = View.GONE
+                hasTemplate = false // Correct state if template fails to load
+            }
         } else {
+            binding.currentTemplateImageView.visibility = View.GONE
             Log.d(TAG, "No template found")
         }
     }
