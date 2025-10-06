@@ -1,6 +1,10 @@
 package com.templatefinder.service
 
 import android.accessibilityservice.AccessibilityService
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
@@ -16,6 +20,8 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import com.templatefinder.R
 import java.util.ArrayDeque
 import java.util.Deque
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -33,6 +39,10 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         private const val MAX_QUEUE_SIZE = 10
         private const val REQUEST_TIMEOUT_MS = 30000L // 30 seconds
         private const val MIN_SCREENSHOT_INTERVAL_MS = 1000L // 1 second minimum between screenshots
+
+        private const val ACC_NOTIFICATION_ID = 1002
+        private const val ACC_CHANNEL_ID = "accessibility_service_channel"
+        private const val ACC_CHANNEL_NAME = "Accessibility Service Status"
         
         @Volatile
         private var instance: ScreenshotAccessibilityService? = null
@@ -71,9 +81,8 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         
         Log.d(TAG, "ScreenshotAccessibilityService connected")
         
-        // Send broadcast
-        val intent = Intent("com.easyclicker.ACCESSIBILITY_SERVICE_CONNECTED")
-        sendBroadcast(intent)
+        createNotificationChannel()
+        showNotification()
 
         try {
             // Configure service info
@@ -105,9 +114,7 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         
         Log.d(TAG, "ScreenshotAccessibilityService destroying...")
         
-        // Send broadcast
-        val intent = Intent("com.easyclicker.ACCESSIBILITY_SERVICE_DISCONNECTED")
-        sendBroadcast(intent)
+        hideNotification()
 
         // Clear pending requests and notify with errors
         clearPendingRequestsWithError("Service is being destroyed")
@@ -119,6 +126,8 @@ class ScreenshotAccessibilityService : AccessibilityService() {
 
     override fun onUnbind(intent: android.content.Intent?): Boolean {
         Log.d(TAG, "ScreenshotAccessibilityService unbound")
+        hideNotification()
+        instance = null
         return super.onUnbind(intent)
     }
 
@@ -430,6 +439,37 @@ class ScreenshotAccessibilityService : AccessibilityService() {
             }
         }
         return smallestNode
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                ACC_CHANNEL_ID,
+                ACC_CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_LOW // Low importance for a status notification
+            ).apply {
+                description = "Indicates that the accessibility service is active."
+            }
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun showNotification() {
+        val notification = NotificationCompat.Builder(this, ACC_CHANNEL_ID)
+            .setContentTitle("Accessibility Service Active")
+            .setContentText("Ready to capture screen content.")
+            .setSmallIcon(R.drawable.ic_launcher_foreground) // Using the same icon for consistency
+            .setOngoing(true)
+            .build()
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(ACC_NOTIFICATION_ID, notification)
+    }
+
+    private fun hideNotification() {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(ACC_NOTIFICATION_ID)
     }
 
     /**
