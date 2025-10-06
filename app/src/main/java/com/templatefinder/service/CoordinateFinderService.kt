@@ -30,17 +30,21 @@ import java.util.concurrent.atomic.AtomicLong
  */
 class CoordinateFinderService : Service() {
 
-    private var isAccessibilityServiceConnected = false
+    private val serviceConnectedDeferred = CompletableDeferred<Boolean>()
 
     private val accessibilityServiceReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "com.easyclicker.ACCESSIBILITY_SERVICE_CONNECTED" -> {
-                    isAccessibilityServiceConnected = true
+                    if (!serviceConnectedDeferred.isCompleted) {
+                        serviceConnectedDeferred.complete(true)
+                    }
                     Log.d(TAG, "Accessibility service connected broadcast received")
                 }
                 "com.easyclicker.ACCESSIBILITY_SERVICE_DISCONNECTED" -> {
-                    isAccessibilityServiceConnected = false
+                    if (!serviceConnectedDeferred.isCompleted) {
+                        serviceConnectedDeferred.complete(false)
+                    }
                     Log.e(TAG, "Accessibility service disconnected broadcast received")
                     notifyError("Accessibility service stopped. Please re-enable it.")
                     stopSearch()
@@ -117,6 +121,7 @@ class CoordinateFinderService : Service() {
     private val isPaused = AtomicBoolean(false)
     private val searchCount = AtomicLong(0)
     private val lastSearchTime = AtomicLong(0)
+    private var lastAction: String? = null
     
     // Coroutine management
     private val serviceScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -167,12 +172,19 @@ class CoordinateFinderService : Service() {
             addAction("com.easyclicker.ACCESSIBILITY_SERVICE_DISCONNECTED")
         }
         registerReceiver(accessibilityServiceReceiver, filter)
+
+        if (ScreenshotAccessibilityService.isServiceRunning()) {
+            serviceConnectedDeferred.complete(true)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
+        val action = intent?.action ?: lastAction
+        lastAction = action
+
+        when (action) {
             ACTION_START_SEARCH -> startSearch()
             ACTION_STOP_SEARCH -> stopSearch()
             ACTION_PAUSE_SEARCH -> pauseSearch()
@@ -245,6 +257,9 @@ class CoordinateFinderService : Service() {
         
         Log.d(TAG, "Starting coordinate search")
         
+        // Start foreground notification immediately
+        startForeground(NOTIFICATION_ID, createNotification("Starting search..."))
+
         // Load current template
         try {
             currentTemplate = templateManager.loadCurrentTemplate()
@@ -280,9 +295,6 @@ class CoordinateFinderService : Service() {
         
         // Load settings
         loadSettings()
-        
-        // Start foreground notification
-        startForeground(NOTIFICATION_ID, createNotification("Starting search..."))
         
         // Start search loop
         isSearchActive.set(true)
@@ -434,12 +446,12 @@ class CoordinateFinderService : Service() {
      * Capture screenshot with retry logic
      */
     private suspend fun captureScreenshotWithRetry(maxRetries: Int): Bitmap {
+        if (!serviceConnectedDeferred.await()) {
+            throw IllegalStateException("Accessibility service not connected")
+        }
+
         repeat(maxRetries) { attempt ->
             try {
-                if (!isAccessibilityServiceConnected) {
-                    throw IllegalStateException("Accessibility service not connected")
-                }
-
                 val screenshotService = ScreenshotAccessibilityService.getInstance()
                     ?: throw IllegalStateException("Accessibility service not available")
 

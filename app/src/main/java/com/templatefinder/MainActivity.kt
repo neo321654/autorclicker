@@ -182,6 +182,11 @@ class MainActivity : AppCompatActivity() {
             checkPermissions()
             checkTemplateStatus()
             
+            if (!permissionManager.isAccessibilityServiceEnabled()) {
+                binding.startSearchButton.isEnabled = false
+                showError("Accessibility Service not enabled. Please enable it in the settings.")
+            }
+
             // Bind to service for communication (check if initialized)
             if (::serviceCommunicationManager.isInitialized) {
                 serviceCommunicationManager.bindService()
