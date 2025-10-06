@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong
 /**
  * Foreground service for continuous coordinate finding in the background
  */
-class CoordinateFinderService : Service() {
+class CoordinateFinderService : Service(), ScreenshotAccessibilityService.ServiceConnectionListener {
 
     companion object {
         private const val TAG = "CoordinateFinderService"
@@ -166,7 +166,10 @@ class CoordinateFinderService : Service() {
             errorHandler = ErrorHandler.getInstance(this)
             robustnessManager = RobustnessManager.getInstance(this)
             appSettings = AppSettings.load(this)
-            
+
+            // Register as a listener for screenshot service connection events
+            ScreenshotAccessibilityService.getInstance()?.addConnectionListener(this)
+
             // Start robustness monitoring
             robustnessManager.startMonitoring()
             
@@ -194,6 +197,16 @@ class CoordinateFinderService : Service() {
                 }
             }
         })
+    }
+
+    override fun onServiceConnected() {
+        Log.i(TAG, "ScreenshotAccessibilityService connected.")
+    }
+
+    override fun onServiceDisconnected() {
+        Log.e(TAG, "ScreenshotAccessibilityService disconnected. Stopping search.")
+        notifyError("Accessibility service stopped. Please re-enable it.")
+        stopSearch()
     }
 
     private fun createNotificationChannel() {
@@ -367,10 +380,6 @@ class CoordinateFinderService : Service() {
             
             // Get screenshot from accessibility service with retry logic
             val screenshot = captureScreenshotWithRetry(maxRetries = 3)
-            if (screenshot == null) {
-                Log.w(TAG, "Failed to capture screenshot after retries")
-                return
-            }
             
             // Preprocess screenshot if needed
             val processedScreenshot = preprocessScreenshotForMatching(screenshot)
@@ -412,18 +421,12 @@ class CoordinateFinderService : Service() {
     /**
      * Capture screenshot with retry logic
      */
-    private suspend fun captureScreenshotWithRetry(maxRetries: Int): Bitmap? {
+    private suspend fun captureScreenshotWithRetry(maxRetries: Int): Bitmap {
         repeat(maxRetries) { attempt ->
             try {
                 val screenshotService = ScreenshotAccessibilityService.getInstance()
-                if (screenshotService == null) {
-                    Log.w(TAG, "Accessibility service not available on attempt ${attempt + 1}")
-                    if (attempt == maxRetries - 1) {
-                        notifyError("Accessibility service not available")
-                    }
-                    return null
-                }
-                
+                    ?: throw IllegalStateException("Accessibility service not available")
+
                 val screenshot = withContext(Dispatchers.Main) {
                     suspendCancellableCoroutine<Bitmap?> { continuation ->
                         screenshotService.takeScreenshot(object : ScreenshotAccessibilityService.ScreenshotCallback {
@@ -463,7 +466,7 @@ class CoordinateFinderService : Service() {
             }
         }
         
-        return null
+        throw IllegalStateException("Failed to capture screenshot after retries")
     }
 
     /**
@@ -715,6 +718,9 @@ class CoordinateFinderService : Service() {
         templateMatchingService.cleanup()
         autoOpenManager.cleanup()
         robustnessManager.stopMonitoring()
+
+        // Unregister listener
+        ScreenshotAccessibilityService.getInstance()?.removeConnectionListener(this)
 
         // Ensure notification is removed
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
