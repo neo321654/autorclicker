@@ -3,6 +3,8 @@ package com.templatefinder.service
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.ComponentName
+import android.content.ServiceConnection
 import android.graphics.Bitmap
 import android.os.Binder
 import android.os.Build
@@ -93,6 +95,24 @@ class CoordinateFinderService : Service() {
     private lateinit var robustnessManager: RobustnessManager
     private lateinit var permissionManager: PermissionManager
     private var appSettings: AppSettings? = null
+
+    // Screenshot Service connection
+    private var screenshotService: ScreenshotAccessibilityService? = null
+    private var isScreenshotServiceBound = false
+    private val screenshotServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as ScreenshotAccessibilityService.LocalBinder
+            screenshotService = binder.getService()
+            isScreenshotServiceBound = true
+            Log.d(TAG, "ScreenshotAccessibilityService connected to CoordinateFinderService.")
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            screenshotService = null
+            isScreenshotServiceBound = false
+            Log.w(TAG, "ScreenshotAccessibilityService disconnected from CoordinateFinderService.")
+        }
+    }
     
     // Service state
     private val isSearchActive = AtomicBoolean(false)
@@ -277,6 +297,11 @@ class CoordinateFinderService : Service() {
         
         // Load settings
         loadSettings()
+
+        // Bind to ScreenshotAccessibilityService
+        Intent(this, ScreenshotAccessibilityService::class.java).also { intent ->
+            bindService(intent, screenshotServiceConnection, Context.BIND_AUTO_CREATE)
+        }
         
         // Start search loop
         isSearchActive.set(true)
@@ -309,6 +334,12 @@ class CoordinateFinderService : Service() {
         stopForeground(true)
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFICATION_ID)
+
+        // Unbind from ScreenshotAccessibilityService
+        if (isScreenshotServiceBound) {
+            unbindService(screenshotServiceConnection)
+            isScreenshotServiceBound = false
+        }
         
         stopSelf()
     }
@@ -433,49 +464,47 @@ class CoordinateFinderService : Service() {
     private suspend fun captureScreenshotWithRetry(maxRetries: Int, retryDelay: Long = 1000L): Bitmap {
         var attempt = 0
         val timeout = maxRetries * retryDelay
-        
+
+        // Wait for the service to be bound
         while (attempt < maxRetries) {
-            // 1. Check if the accessibility service is enabled by the user
-            if (!permissionManager.isAccessibilityServiceEnabled()) {
-                throw IllegalStateException("Screenshot Accessibility Service is not enabled. Please enable it in settings.")
+            if (isScreenshotServiceBound && screenshotService != null) {
+                break // Exit loop if bound
             }
+            Log.w(TAG, "Attempt ${attempt + 1} to connect to Screenshot service failed. Retrying in ${retryDelay}ms...")
+            delay(retryDelay)
+            attempt++
+        }
 
-            // 2. Try to get the service instance
-            val screenshotService = ScreenshotAccessibilityService.getInstance()
-            if (screenshotService != null) {
-                // 3. If instance is available, try to take a screenshot
-                val screenshot = withContext(Dispatchers.Main) {
-                    suspendCancellableCoroutine<Bitmap?> { continuation ->
-                        screenshotService.takeScreenshot(object : ScreenshotAccessibilityService.ScreenshotCallback {
-                            override fun onScreenshotTaken(bitmap: Bitmap?) {
-                                continuation.resumeWith(Result.success(bitmap))
-                            }
+        val service = screenshotService
+        if (!isScreenshotServiceBound || service == null) {
+            throw IllegalStateException("Failed to bind to ScreenshotAccessibilityService after $timeout ms.")
+        }
 
-                            override fun onScreenshotError(error: String) {
-                                Log.e(TAG, "Screenshot error on attempt ${attempt + 1}: $error")
-                                continuation.resumeWith(Result.success(null))
-                            }
-                        })
-                        
-                        continuation.invokeOnCancellation {
-                            Log.d(TAG, "Screenshot request cancelled")
+        // Now that we are bound, try to take the screenshot
+        return withContext(Dispatchers.Main) {
+            suspendCancellableCoroutine { continuation ->
+                service.takeScreenshot(object : ScreenshotAccessibilityService.ScreenshotCallback {
+                    override fun onScreenshotTaken(bitmap: Bitmap?) {
+                        if (bitmap != null) {
+                            Log.d(TAG, "Screenshot captured successfully.")
+                            robustnessManager.registerBitmap(bitmap)
+                            continuation.resumeWith(Result.success(bitmap))
+                        } else {
+                            continuation.resumeWith(Result.failure(IllegalStateException("Screenshot was null")))
                         }
                     }
-                }
-                if (screenshot != null) {
-                    Log.d(TAG, "Screenshot captured successfully on attempt ${attempt + 1}")
-                    robustnessManager.registerBitmap(screenshot)
-                    return screenshot
+
+                    override fun onScreenshotError(error: String) {
+                        Log.e(TAG, "Screenshot error: $error")
+                        continuation.resumeWith(Result.failure(IllegalStateException("Screenshot error: $error")))
+                    }
+                })
+
+                continuation.invokeOnCancellation {
+                    Log.d(TAG, "Screenshot request cancelled")
                 }
             }
-
-            // 4. If service is not available or screenshot failed, wait and retry
-            Log.w(TAG, "Attempt ${attempt + 1} to get screenshot service failed. Retrying in ${retryDelay}ms...")
-            attempt++
-            delay(retryDelay)
         }
-        
-        throw IllegalStateException("Failed to capture screenshot after $maxRetries retries (timeout: ${timeout}ms). The accessibility service might be crashing or unavailable.")
     }
 
     /**
@@ -568,8 +597,8 @@ class CoordinateFinderService : Service() {
                 serviceScope.launch {
                     // delay(2000) // Temporarily removed delay to make click immediate
                     result.coordinates?.let {
-                        val accessibilityService = ScreenshotAccessibilityService.getInstance()
-                        if (accessibilityService != null) {
+                        val service = screenshotService
+                        if (isScreenshotServiceBound && service != null) {
                             val clickX = it.x
                             val clickY = it.y
 
@@ -580,7 +609,7 @@ class CoordinateFinderService : Service() {
                             if (appSettings?.showClickMarker == true) {
                                 autoOpenManager.showClickMarker(clickX, clickY)
                             }
-                            accessibilityService.performClick(clickX, clickY)
+                            service.performClick(clickX, clickY)
                         } else {
                             Log.w(TAG, "Accessibility service not available for auto-click.")
                         }
@@ -726,6 +755,12 @@ class CoordinateFinderService : Service() {
         // Stop search
         isSearchActive.set(false)
         searchJob?.cancel()
+
+        // Unbind from ScreenshotAccessibilityService
+        if (isScreenshotServiceBound) {
+            unbindService(screenshotServiceConnection)
+            isScreenshotServiceBound = false
+        }
         
         // Clean up
         serviceScope.cancel()
