@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.templatefinder.databinding.ActivityMainBinding
@@ -25,6 +26,7 @@ import com.templatefinder.util.AppOptimizationManager
 import com.templatefinder.TemplateFinderApplication
 import com.templatefinder.util.AccessibilityManager
 import kotlinx.coroutines.launch
+import android.provider.Settings
 
 /**
  * Main activity providing core application controls and status display
@@ -696,7 +698,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun showError(message: String) {
         Log.e(TAG, message)
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+
+        if (message.contains("Failed to capture screenshot")) {
+            AlertDialog.Builder(this)
+                .setTitle("Accessibility Service Error")
+                .setMessage("The accessibility service is not responding. This can sometimes be fixed by disabling and re-enabling it in the system settings.")
+                .setPositiveButton("Open Settings") { _, _ ->
+                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        } else {
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        }
     }
 
     /**
