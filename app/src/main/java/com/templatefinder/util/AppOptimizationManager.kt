@@ -121,8 +121,8 @@ class AppOptimizationManager(private val context: Context) {
         return try {
             // Get battery-optimized settings
             val batteryOptimizedSettings = if (batteryOptimizer.shouldPauseSearch()) {
-                // Pause search if battery is critical
-                currentSettings.copy(isSearchActive = false)
+                // Effectively pause search by setting a very long interval if battery is critical
+                currentSettings.copy(searchInterval = 300000L) // 5 minutes
             } else {
                 val optimizedInterval = batteryOptimizer.getOptimizedSearchInterval(currentSettings.searchInterval)
                 currentSettings.copy(searchInterval = optimizedInterval)
