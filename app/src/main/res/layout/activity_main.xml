@@ -222,6 +222,15 @@
 
                 </LinearLayout>
 
+                <Button
+                    android:id="@+id/forceStopButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Force Stop Service"
+                    style="@style/Widget.Material3.Button"
+                    android:backgroundTint="@android:color/holo_red_dark" />
+
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
