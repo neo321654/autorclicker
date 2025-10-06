@@ -3,7 +3,7 @@ package com.templatefinder.service
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
-//import android.accessibilityservice.AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
+import android.accessibilityservice.AccessibilityServiceInfo.CAPABILITY_CAN_DISPATCH_GESTURES
 // FLAG_TAKE_SCREENSHOT is available from API 30+
 import android.graphics.Bitmap
 import android.graphics.Path
@@ -89,30 +89,24 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         Log.d(TAG, "ScreenshotAccessibilityService connected")
         
         try {
-            // Configure service info
-            val info = AccessibilityServiceInfo().apply {
-                eventTypes = AccessibilityEvent.TYPES_ALL_MASK
-                feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
-                
-                // Enable screenshot capability if supported
-                flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    AccessibilityServiceInfo.DEFAULT or 0x00000040 // FLAG_TAKE_SCREENSHOT value
-                } else {
-                    AccessibilityServiceInfo.DEFAULT
-                }
-                flags = flags or FLAG_RETRIEVE_INTERACTIVE_WINDOWS
-                
-                // Add capabilities
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                    capabilities = capabilities or CAPABILITY_CAN_DISPATCH_GESTURES
-//                }
-                
-                // Set notification timeout
-                notificationTimeout = 100
+            val info = serviceInfo ?: AccessibilityServiceInfo()
+            info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK
+            info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
+
+            var newFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                AccessibilityServiceInfo.DEFAULT or 0x00000040 // FLAG_TAKE_SCREENSHOT value
+            } else {
+                AccessibilityServiceInfo.DEFAULT
             }
+            newFlags = newFlags or FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+            info.flags = newFlags
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                info.capabilities = info.capabilities or CAPABILITY_CAN_DISPATCH_GESTURES
+            }
+
+            info.notificationTimeout = 100
             
-            Log.i(TAG, "Final service flags: ${Integer.toBinaryString(info.flags)}")
-            Log.i(TAG, "Final service capabilities: ${Integer.toBinaryString(info.capabilities)}")
             serviceInfo = info
             
             Log.d(TAG, "Service configured successfully")
