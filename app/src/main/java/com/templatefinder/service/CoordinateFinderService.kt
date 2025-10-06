@@ -285,10 +285,12 @@ class CoordinateFinderService : Service() {
         searchJob = null
         
         notifyCallbacks { it.onSearchStopped() }
-        updateNotification("Search stopped")
         
-        // Stop foreground service
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        // Stop foreground service and remove notification
+        stopForeground(true)
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIFICATION_ID)
+        
         stopSelf()
     }
 
@@ -711,6 +713,10 @@ class CoordinateFinderService : Service() {
         templateMatchingService.cleanup()
         autoOpenManager.cleanup()
         robustnessManager.stopMonitoring()
+
+        // Ensure notification is removed
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIFICATION_ID)
         
         Log.d(TAG, "CoordinateFinderService destroyed")
     }
