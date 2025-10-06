@@ -424,8 +424,20 @@ class MainActivity : AppCompatActivity() {
         // Force Stop button
         binding.forceStopButton.setOnClickListener {
             Log.d(TAG, "Force stopping all services")
-            CoordinateFinderService.stopService(this) // Send stop command to service
-            Toast.makeText(this, "Attempting to force stop service...", Toast.LENGTH_SHORT).show()
+            
+            // First, unbind from the service to release the client hold
+            if (::serviceCommunicationManager.isInitialized) {
+                serviceCommunicationManager.unbindService()
+            }
+            
+            // Then, send the stop command to ensure it shuts down
+            CoordinateFinderService.stopService(this)
+            
+            // Manually update UI to give immediate feedback
+            isSearchActive = false
+            updateUI()
+            
+            Toast.makeText(this, "Force stop command sent...", Toast.LENGTH_SHORT).show()
         }
     }
 
