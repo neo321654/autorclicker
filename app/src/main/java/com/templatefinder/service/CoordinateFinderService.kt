@@ -100,6 +100,7 @@ class CoordinateFinderService : Service() {
     private val searchCount = AtomicLong(0)
     private val lastSearchTime = AtomicLong(0)
     private var lastAction: String? = null
+    private val shouldStopOnUnbind = AtomicBoolean(false)
     
     // Coroutine management
     private val serviceScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -147,6 +148,18 @@ class CoordinateFinderService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        Log.d(TAG, "Service unbound")
+        if (shouldStopOnUnbind.get()) {
+            stopSelf()
+        }
+        return super.onUnbind(intent)
+    }
+
+    fun prepareToStop() {
+        shouldStopOnUnbind.set(true)
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.action ?: lastAction

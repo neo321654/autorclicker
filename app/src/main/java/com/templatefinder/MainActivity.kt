@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
     private var isSearchActive = false
     private var hasTemplate = false
     private var lastSearchResult: SearchResult? = null
-    private var isForceStopping = false
     
     // Service callback for coordinate finder service
     private val serviceCallback = object : CoordinateFinderService.ServiceCallback {
@@ -247,10 +246,6 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "Service communication lost")
             isSearchActive = false
             updateUI()
-            if (isForceStopping) {
-                isForceStopping = false
-                CoordinateFinderService.stopService(this@MainActivity)
-            }
         }
 
         override fun onSearchStarted() {
@@ -436,22 +431,18 @@ class MainActivity : AppCompatActivity() {
         // Force Stop button
         binding.forceStopButton.setOnClickListener {
             Log.d(TAG, "Force stopping all services")
-            
-            isForceStopping = true
-            
-            // First, unbind from the service to release the client hold
+
+            serviceCommunicationManager.getService()?.prepareToStop()
+
+            // Unbind from the service, which will trigger onUnbind in the service and stop it.
             if (::serviceCommunicationManager.isInitialized) {
                 serviceCommunicationManager.unbindService()
-            } else {
-                // If not bound, just stop the service
-                CoordinateFinderService.stopService(this)
-                isForceStopping = false // Reset flag
             }
-            
+
             // Manually update UI to give immediate feedback
             isSearchActive = false
             updateUI()
-            
+
             Toast.makeText(this, "Force stop command sent...", Toast.LENGTH_SHORT).show()
         }
     }
