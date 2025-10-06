@@ -13,8 +13,7 @@ data class AppSettings(
     val autoOpenEnabled: Boolean,
     val loggingEnabled: Boolean,
     val autoClickEnabled: Boolean,
-    val language: String,
-    val showClickMarker: Boolean // Added this field
+    val language: String
 ) {
 
     companion object {
@@ -29,7 +28,6 @@ data class AppSettings(
         private const val KEY_LOGGING_ENABLED = "logging_enabled"
         private const val KEY_AUTO_CLICK_ENABLED = "auto_click_enabled"
         private const val KEY_LANGUAGE = "language"
-        private const val KEY_SHOW_CLICK_MARKER = "show_click_marker"
 
         fun load(context: Context): AppSettings {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -43,8 +41,7 @@ data class AppSettings(
                 autoOpenEnabled = prefs.getBoolean(KEY_AUTO_OPEN_ENABLED, false),
                 loggingEnabled = prefs.getBoolean(KEY_LOGGING_ENABLED, false),
                 autoClickEnabled = prefs.getBoolean(KEY_AUTO_CLICK_ENABLED, false),
-                language = prefs.getString(KEY_LANGUAGE, "en") ?: "en",
-                showClickMarker = prefs.getBoolean(KEY_SHOW_CLICK_MARKER, false)
+                language = prefs.getString(KEY_LANGUAGE, "en") ?: "en"
             )
         }
     }
@@ -62,7 +59,6 @@ data class AppSettings(
             putBoolean(KEY_LOGGING_ENABLED, loggingEnabled)
             putBoolean(KEY_AUTO_CLICK_ENABLED, autoClickEnabled)
             putString(KEY_LANGUAGE, language)
-            putBoolean(KEY_SHOW_CLICK_MARKER, showClickMarker)
             apply()
         }
     }}
