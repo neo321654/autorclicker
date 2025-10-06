@@ -7,7 +7,6 @@ data class AppSettings(
     val searchInterval: Long,
     val matchThreshold: Float,
     val templateRadius: Int,
-    val isSearchActive: Boolean,
     val maxResults: Int,
     val notificationsEnabled: Boolean,
     val vibrationEnabled: Boolean,
@@ -25,7 +24,6 @@ data class AppSettings(
         private const val KEY_SEARCH_INTERVAL = "search_interval"
         private const val KEY_MATCH_THRESHOLD = "match_threshold"
         private const val KEY_TEMPLATE_RADIUS = "template_radius"
-        private const val KEY_IS_SEARCH_ACTIVE = "is_search_active"
         private const val KEY_MAX_RESULTS = "max_results"
         private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
         private const val KEY_VIBRATION_ENABLED = "vibration_enabled"
@@ -43,7 +41,6 @@ data class AppSettings(
                 searchInterval = prefs.getLong(KEY_SEARCH_INTERVAL, 2000L),
                 matchThreshold = prefs.getFloat(KEY_MATCH_THRESHOLD, 0.8f),
                 templateRadius = prefs.getInt(KEY_TEMPLATE_RADIUS, 50),
-                isSearchActive = prefs.getBoolean(KEY_IS_SEARCH_ACTIVE, false),
                 maxResults = prefs.getInt(KEY_MAX_RESULTS, 10),
                 notificationsEnabled = prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true),
                 vibrationEnabled = prefs.getBoolean(KEY_VIBRATION_ENABLED, true),
@@ -64,7 +61,6 @@ data class AppSettings(
             putLong(KEY_SEARCH_INTERVAL, searchInterval)
             putFloat(KEY_MATCH_THRESHOLD, matchThreshold)
             putInt(KEY_TEMPLATE_RADIUS, templateRadius)
-            putBoolean(KEY_IS_SEARCH_ACTIVE, isSearchActive)
             putInt(KEY_MAX_RESULTS, maxResults)
             putBoolean(KEY_NOTIFICATIONS_ENABLED, notificationsEnabled)
             putBoolean(KEY_VIBRATION_ENABLED, vibrationEnabled)
@@ -77,4 +73,4 @@ data class AppSettings(
             putBoolean(KEY_SHOW_CLICK_MARKER, showClickMarker)
             apply()
         }
-    }
+    }}

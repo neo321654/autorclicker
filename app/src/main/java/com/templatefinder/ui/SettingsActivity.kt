@@ -298,7 +298,6 @@ class SettingsActivity : AppCompatActivity() {
                     searchInterval = searchInterval,
                     matchThreshold = matchThreshold,
                     templateRadius = templateRadius,
-                    isSearchActive = appSettings.isSearchActive,
                     maxResults = maxResults,
                     notificationsEnabled = enableNotifications,
                     vibrationEnabled = enableVibration,
