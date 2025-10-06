@@ -296,10 +296,18 @@ class SettingsActivity : AppCompatActivity() {
                 // Save settings using AppSettings
                 val newSettings = AppSettings(
                     searchInterval = searchInterval,
+                    matchThreshold = matchThreshold,
+                    templateRadius = templateRadius,
+                    isSearchActive = appSettings.isSearchActive,
+                    maxResults = maxResults,
+                    notificationsEnabled = enableNotifications,
                     vibrationEnabled = enableVibration,
                     autoOpenEnabled = enableAutoOpen,
+                    loggingEnabled = enableLogging,
+                    autoClickEnabled = enableAutoClick,
                     clickOffsetX = offsetX,
                     clickOffsetY = offsetY,
+                    language = language,
                     showClickMarker = showClickMarker
                 )
                 newSettings.save(this@SettingsActivity)
