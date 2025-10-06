@@ -76,4 +76,5 @@
     <string name="cd_current_template_thumbnail">Эскиз текущего шаблона</string>
     <string name="test_template_title">Тестирование шаблона</string>
     <string name="image_selected">Изображение выбрано</string>
+    <string name="template_selected_format">Шаблон: %1$s</string>
 </resources>
