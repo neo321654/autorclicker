@@ -181,7 +181,6 @@ class MainActivity : AppCompatActivity() {
         try {
             checkPermissions()
             checkTemplateStatus()
-            checkServiceStatus()
             
             // Bind to service for communication (check if initialized)
             if (::serviceCommunicationManager.isInitialized) {
@@ -228,10 +227,18 @@ class MainActivity : AppCompatActivity() {
     private val serviceCommunicationCallback = object : ServiceCommunicationManager.ServiceCommunicationCallback {
         override fun onServiceConnected() {
             Log.d(TAG, "Service communication established")
+            // Request status update from service to sync UI
+            val status = serviceCommunicationManager.getServiceStatus()
+            if (status != null) {
+                isSearchActive = status.isRunning
+                updateUI()
+            }
         }
 
         override fun onServiceDisconnected() {
             Log.d(TAG, "Service communication lost")
+            isSearchActive = false
+            updateUI()
         }
 
         override fun onSearchStarted() {
